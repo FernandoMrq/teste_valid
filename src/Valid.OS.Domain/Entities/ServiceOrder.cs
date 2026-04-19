@@ -15,6 +15,8 @@ public sealed class ServiceOrder : Entity
 
     public Guid ClientId { get; private set; }
 
+    public Client? Client { get; private set; }
+
     public string Description { get; private set; } = null!;
 
     public Priority Priority { get; private set; }
