@@ -1,4 +1,5 @@
 using Valid.OS.Domain.Enums;
+using Valid.OS.Domain.Events;
 using Valid.OS.Domain.Exceptions;
 using Valid.OS.Domain.Primitives;
 
@@ -105,6 +106,7 @@ public sealed class ServiceOrder : Entity
         if (newStatus == ServiceOrderStatus.Closed)
         {
             ClosedAt = DateTimeOffset.UtcNow;
+            RaiseDomainEvent(new ServiceOrderClosedDomainEvent(Id, ClientId, Description));
         }
     }
 
