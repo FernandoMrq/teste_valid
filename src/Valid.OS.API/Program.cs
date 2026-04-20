@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -10,6 +11,15 @@ using Valid.OS.Application;
 using Valid.OS.Infrastructure;
 using Valid.OS.Infrastructure.Options;
 using Valid.OS.Infrastructure.Persistence;
+
+static string BuildRabbitMqConnectionString(RabbitMqOptions options)
+{
+    var user = Uri.EscapeDataString(options.User);
+    var pass = Uri.EscapeDataString(options.Password);
+    var vhost = string.IsNullOrWhiteSpace(options.VHost) ? "/" : options.VHost;
+    var vhostSegment = vhost == "/" ? "%2F" : Uri.EscapeDataString(vhost);
+    return $"amqp://{user}:{pass}@{options.Host}:5672/{vhostSegment}";
+}
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,6 +78,26 @@ builder.Services.AddInfrastructure(builder.Configuration);
 var keycloak = builder.Configuration.GetSection(KeycloakOptions.SectionName).Get<KeycloakOptions>()
     ?? throw new InvalidOperationException("Configuração Keycloak ausente.");
 
+var postgresConnection = builder.Configuration.GetConnectionString("Postgres")
+    ?? throw new InvalidOperationException("Connection string 'Postgres' is not configured.");
+var mongoForHealth = builder.Configuration.GetSection(MongoOptions.SectionName).Get<MongoOptions>()
+    ?? throw new InvalidOperationException("Configuração Mongo ausente.");
+if (string.IsNullOrWhiteSpace(mongoForHealth.ConnectionString))
+{
+    throw new InvalidOperationException("Mongo:ConnectionString is not configured.");
+}
+
+var rabbitForHealth = builder.Configuration.GetSection(RabbitMqOptions.SectionName).Get<RabbitMqOptions>()
+    ?? throw new InvalidOperationException("Configuração RabbitMq ausente.");
+
+var keycloakOpenIdConfiguration = new Uri($"{keycloak.Authority.TrimEnd('/')}/.well-known/openid-configuration");
+
+builder.Services.AddHealthChecks()
+    .AddNpgSql(postgresConnection, name: "postgres")
+    .AddMongoDb(mongoForHealth.ConnectionString, name: "mongodb")
+    .AddRabbitMQ(BuildRabbitMqConnectionString(rabbitForHealth), name: "rabbitmq")
+    .AddUrlGroup(keycloakOpenIdConfiguration, name: "keycloak");
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -104,6 +134,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapHealthChecks("/health").AllowAnonymous();
 
 app.MapControllers();
 
