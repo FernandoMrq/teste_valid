@@ -3,18 +3,6 @@ import { type ReactNode, useEffect, useMemo, useState } from 'react'
 import { AuthContext } from '../../features/auth/context/auth-context'
 import { keycloak } from '../../features/auth/lib/keycloak'
 
-function Skeleton() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-neutral-50">
-      <div
-        className="h-10 w-48 animate-pulse rounded-md bg-neutral-200"
-        aria-hidden
-      />
-      <span className="sr-only">Carregando autenticação</span>
-    </div>
-  )
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [initialized, setInitialized] = useState(false)
   const [authenticated, setAuthenticated] = useState(false)
@@ -49,18 +37,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       keycloak,
       token,
+      initialized,
       authenticated,
       user: keycloak.tokenParsed ?? undefined,
       logout: () => {
         void keycloak.logout()
       },
     }),
-    [authenticated, token]
+    [authenticated, initialized, token]
   )
-
-  if (!initialized) {
-    return <Skeleton />
-  }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

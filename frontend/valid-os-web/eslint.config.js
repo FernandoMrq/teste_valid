@@ -49,6 +49,7 @@ export default tseslint.config(
             '**/src/shared/**',
             '**/src/app/**',
             '**/src/features/**',
+            '**/src/pages/**',
           ],
         },
       ],
