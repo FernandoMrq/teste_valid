@@ -15,9 +15,21 @@ using Valid.OS.Infrastructure.Persistence.Repositories;
 
 namespace Valid.OS.Infrastructure;
 
+public enum InfrastructureHostingProfile
+{
+    /// <summary>ASP.NET Core API: persistence, messaging publisher, domain dispatch, HTTP auth.</summary>
+    Api,
+
+    /// <summary>Worker host: typed options, MongoDB notification log only.</summary>
+    Worker,
+}
+
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        InfrastructureHostingProfile profile = InfrastructureHostingProfile.Api)
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
@@ -25,48 +37,51 @@ public static class DependencyInjection
         services.Configure<MongoOptions>(configuration.GetSection(MongoOptions.SectionName));
         services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
 
-        var postgresConnection = configuration.GetConnectionString("Postgres")
-            ?? throw new InvalidOperationException("Connection string 'Postgres' is not configured.");
-
-        services.AddDbContext<AppDbContext>(options =>
-            options.UseNpgsql(
-                postgresConnection,
-                npgsql => npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(2), null)));
-
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IClientRepository, ClientRepository>();
-        services.AddScoped<IServiceOrderRepository, ServiceOrderRepository>();
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-        services.AddMassTransit(x =>
+        if (profile == InfrastructureHostingProfile.Api)
         {
-            x.SetKebabCaseEndpointNameFormatter();
+            var postgresConnection = configuration.GetConnectionString("Postgres")
+                ?? throw new InvalidOperationException("Connection string 'Postgres' is not configured.");
 
-            x.UsingRabbitMq((context, cfg) =>
+            services.AddDbContext<AppDbContext>(options =>
+                options.UseNpgsql(
+                    postgresConnection,
+                    npgsql => npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(2), null)));
+
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IClientRepository, ClientRepository>();
+            services.AddScoped<IServiceOrderRepository, ServiceOrderRepository>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            services.AddMassTransit(x =>
             {
-                var options = context.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
+                x.SetKebabCaseEndpointNameFormatter();
 
-                cfg.Host(
-                    options.Host,
-                    string.IsNullOrWhiteSpace(options.VHost) ? "/" : options.VHost,
-                    h =>
-                    {
-                        h.Username(options.User);
-                        h.Password(options.Password);
-                    });
+                x.UsingRabbitMq((context, cfg) =>
+                {
+                    var options = context.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
+
+                    cfg.Host(
+                        options.Host,
+                        string.IsNullOrWhiteSpace(options.VHost) ? "/" : options.VHost,
+                        h =>
+                        {
+                            h.Username(options.User);
+                            h.Password(options.Password);
+                        });
+                });
             });
-        });
+
+            RegisterDomainEventHandlers(services);
+
+            services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+
+            services.AddHttpContextAccessor();
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
+        }
 
         services.AddSingleton<MongoContext>();
 
         services.AddScoped<INotificationRepository, NotificationRepository>();
-
-        RegisterDomainEventHandlers(services);
-
-        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
-
-        services.AddHttpContextAccessor();
-        services.AddScoped<ICurrentUserService, CurrentUserService>();
 
         return services;
     }

@@ -1,23 +1,20 @@
 namespace Valid.OS.Worker;
 
-public class Worker : BackgroundService
+/// <summary>
+/// Placeholder até o MassTransit ser registrado; mantém o host genérico em execução.
+/// </summary>
+public sealed class Worker(ILogger<Worker> logger) : BackgroundService
 {
-    private readonly ILogger<Worker> _logger;
-
-    public Worker(ILogger<Worker> logger)
-    {
-        _logger = logger;
-    }
-
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        logger.LogInformation("Valid.OS.Worker aguardando configuração de MassTransit.");
+        try
         {
-            if (_logger.IsEnabled(LogLevel.Information))
-            {
-                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-            }
-            await Task.Delay(1000, stoppingToken);
+            await Task.Delay(Timeout.Infinite, stoppingToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            // shutdown
         }
     }
 }
