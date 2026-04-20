@@ -2,8 +2,10 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using RabbitMQ.Client;
 using Serilog;
 using Valid.OS.API.Filters;
 using Valid.OS.API.Middleware;
@@ -89,13 +91,24 @@ if (string.IsNullOrWhiteSpace(mongoForHealth.ConnectionString))
 
 var rabbitForHealth = builder.Configuration.GetSection(RabbitMqOptions.SectionName).Get<RabbitMqOptions>()
     ?? throw new InvalidOperationException("Configuração RabbitMq ausente.");
+if (string.IsNullOrWhiteSpace(rabbitForHealth.Host))
+{
+    throw new InvalidOperationException("RabbitMq:Host is not configured.");
+}
+
+builder.Services.AddSingleton<IConnection>(sp =>
+{
+    var options = sp.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
+    var factory = new ConnectionFactory { Uri = new Uri(BuildRabbitMqConnectionString(options)) };
+    return factory.CreateConnectionAsync().GetAwaiter().GetResult();
+});
 
 var keycloakOpenIdConfiguration = new Uri($"{keycloak.Authority.TrimEnd('/')}/.well-known/openid-configuration");
 
 builder.Services.AddHealthChecks()
     .AddNpgSql(postgresConnection, name: "postgres")
     .AddMongoDb(mongoForHealth.ConnectionString, name: "mongodb")
-    .AddRabbitMQ(BuildRabbitMqConnectionString(rabbitForHealth), name: "rabbitmq")
+    .AddRabbitMQ(name: "rabbitmq")
     .AddUrlGroup(keycloakOpenIdConfiguration, name: "keycloak");
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
