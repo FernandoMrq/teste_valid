@@ -1,0 +1,27 @@
+namespace Valid.OS.Application.Common;
+
+public sealed class PagedResult<T>
+{
+    public PagedResult(IReadOnlyList<T> items, int total, int page, int pageSize)
+    {
+        Items = items;
+        Total = total;
+        Page = page;
+        PageSize = pageSize;
+    }
+
+    public IReadOnlyList<T> Items { get; }
+
+    public int Total { get; }
+
+    public int Page { get; }
+
+    public int PageSize { get; }
+
+    public PagedResult<TOut> Map<TOut>(Func<T, TOut> selector)
+    {
+        ArgumentNullException.ThrowIfNull(selector);
+        var mapped = Items.Select(selector).ToList();
+        return new PagedResult<TOut>(mapped, Total, Page, PageSize);
+    }
+}
