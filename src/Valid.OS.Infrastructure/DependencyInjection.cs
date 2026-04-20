@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Valid.OS.Infrastructure.DomainEvents;
+using Valid.OS.Infrastructure.Mongo;
 using Valid.OS.Infrastructure.Options;
 
 namespace Valid.OS.Infrastructure;
@@ -14,6 +15,8 @@ public static class DependencyInjection
         services.Configure<KeycloakOptions>(configuration.GetSection(KeycloakOptions.SectionName));
         services.Configure<MongoOptions>(configuration.GetSection(MongoOptions.SectionName));
         services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
+
+        services.AddSingleton<MongoContext>();
 
         RegisterDomainEventHandlers(services);
 
