@@ -1,0 +1,22 @@
+:root {
+  --color-brand-900: #0a2540;
+  --color-brand-800: #0f2d52;
+  --color-brand-700: #143965;
+  --color-brand-600: #1e4d8c;
+  --color-brand-500: #2563eb;
+  --color-brand-400: #3b82f6;
+  --color-brand-100: #dbeafe;
+  --color-brand-50: #eff6ff;
+  --color-accent-teal: #0ea5a4;
+  --color-neutral-900: #0f172a;
+  --color-neutral-700: #334155;
+  --color-neutral-500: #64748b;
+  --color-neutral-300: #cbd5e1;
+  --color-neutral-200: #e2e8f0;
+  --color-neutral-100: #f1f5f9;
+  --color-neutral-50: #f8fafc;
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+  --color-info: #0284c7;
+}

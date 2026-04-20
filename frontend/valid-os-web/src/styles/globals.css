@@ -1,0 +1,14 @@
+@import './tokens.css';
+@import '@fontsource-variable/inter/index.css';
+@import '@fontsource/jetbrains-mono/latin-400.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply min-h-screen bg-neutral-50 font-sans text-neutral-900 antialiased;
+    margin: 0;
+  }
+}
