@@ -9,6 +9,8 @@ public interface IServiceOrderRepository
 
     Task<ServiceOrder?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
+    Task<ServiceOrder?> GetByIdForUpdateAsync(Guid id, CancellationToken cancellationToken = default);
+
     Task<ServiceOrder?> GetByIdWithClientAsync(Guid id, CancellationToken cancellationToken = default);
 
     Task<(IReadOnlyList<ServiceOrder> Items, int TotalCount)> ListAsync(

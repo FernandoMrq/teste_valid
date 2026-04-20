@@ -19,6 +19,12 @@ public sealed class ServiceOrderRepository(AppDbContext context) : IServiceOrder
             .FirstOrDefaultAsync(o => o.Id == id, cancellationToken);
     }
 
+    public async Task<ServiceOrder?> GetByIdForUpdateAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await context.ServiceOrders
+            .FirstOrDefaultAsync(o => o.Id == id, cancellationToken);
+    }
+
     public async Task<ServiceOrder?> GetByIdWithClientAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await context.ServiceOrders
