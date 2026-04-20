@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Valid.OS.Application\Valid.OS.Application.csproj" />
+    <ProjectReference Include="..\Valid.OS.Contracts\Valid.OS.Contracts.csproj" />
     <ProjectReference Include="..\Valid.OS.Domain\Valid.OS.Domain.csproj" />
   </ItemGroup>
 
