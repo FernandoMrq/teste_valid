@@ -1,8 +1,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Valid.OS.Domain.Repositories;
 using Valid.OS.Infrastructure.DomainEvents;
 using Valid.OS.Infrastructure.Mongo;
 using Valid.OS.Infrastructure.Options;
+using Valid.OS.Infrastructure.Persistence.Repositories;
 
 namespace Valid.OS.Infrastructure;
 
@@ -17,6 +19,8 @@ public static class DependencyInjection
         services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
 
         services.AddSingleton<MongoContext>();
+
+        services.AddScoped<INotificationRepository, NotificationRepository>();
 
         RegisterDomainEventHandlers(services);
 
