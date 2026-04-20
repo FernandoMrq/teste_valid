@@ -1,8 +1,11 @@
 using MassTransit;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Valid.OS.Application.Abstractions;
 using Valid.OS.Domain.Repositories;
+using Valid.OS.Infrastructure.Auth;
 using Valid.OS.Infrastructure.DomainEvents;
 using Valid.OS.Infrastructure.Mongo;
 using Valid.OS.Infrastructure.Options;
@@ -46,6 +49,9 @@ public static class DependencyInjection
         RegisterDomainEventHandlers(services);
 
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
 
         return services;
     }
