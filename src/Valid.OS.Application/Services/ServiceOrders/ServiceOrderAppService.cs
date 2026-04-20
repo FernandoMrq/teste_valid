@@ -1,11 +1,14 @@
 using FluentValidation;
 using Valid.OS.Application.Abstractions;
+using Valid.OS.Application.Common;
 using Valid.OS.Application.DTOs;
 using Valid.OS.Application.Exceptions;
 using Valid.OS.Application.Mappers;
 using Valid.OS.Application.Services.ServiceOrders.Commands;
+using Valid.OS.Application.Services.ServiceOrders.Queries;
 using Valid.OS.Domain.Entities;
 using Valid.OS.Domain.Repositories;
+using Valid.OS.Domain.Specifications;
 
 namespace Valid.OS.Application.Services.ServiceOrders;
 
@@ -98,6 +101,32 @@ public sealed class ServiceOrderAppService : IServiceOrderAppService
         order.ChangeStatus(command.Status);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<ServiceOrderDetailsDto> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var order = await _orders.GetByIdWithClientAsync(id, cancellationToken).ConfigureAwait(false)
+            ?? throw new NotFoundException($"Chamado {id} não encontrado.");
+
+        var client = order.Client
+            ?? throw new NotFoundException($"Cliente da ordem {id} não encontrado.");
+
+        return ServiceOrderMapper.ToDetailsDto(order, client);
+    }
+
+    public async Task<PagedResult<ServiceOrderDto>> ListAsync(
+        ListServiceOrdersQuery query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        var spec = new ServiceOrderFilterSpecification(query.Status, query.Priority, query.ClientId);
+        var (items, total) = await _orders
+            .ListAsync(spec, query.Page, query.PageSize, cancellationToken)
+            .ConfigureAwait(false);
+
+        var dtos = items.Select(ServiceOrderMapper.ToDto).ToList();
+        return new PagedResult<ServiceOrderDto>(dtos, total, query.Page, query.PageSize);
     }
 
     private async Task<ServiceOrder> FindForUpdateOrThrowAsync(Guid id, CancellationToken cancellationToken)
