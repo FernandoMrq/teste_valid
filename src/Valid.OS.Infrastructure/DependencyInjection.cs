@@ -1,5 +1,6 @@
 using MassTransit;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -9,6 +10,7 @@ using Valid.OS.Infrastructure.Auth;
 using Valid.OS.Infrastructure.DomainEvents;
 using Valid.OS.Infrastructure.Mongo;
 using Valid.OS.Infrastructure.Options;
+using Valid.OS.Infrastructure.Persistence;
 using Valid.OS.Infrastructure.Persistence.Repositories;
 
 namespace Valid.OS.Infrastructure;
@@ -22,6 +24,19 @@ public static class DependencyInjection
         services.Configure<KeycloakOptions>(configuration.GetSection(KeycloakOptions.SectionName));
         services.Configure<MongoOptions>(configuration.GetSection(MongoOptions.SectionName));
         services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
+
+        var postgresConnection = configuration.GetConnectionString("Postgres")
+            ?? throw new InvalidOperationException("Connection string 'Postgres' is not configured.");
+
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseNpgsql(
+                postgresConnection,
+                npgsql => npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(2), null)));
+
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IClientRepository, ClientRepository>();
+        services.AddScoped<IServiceOrderRepository, ServiceOrderRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddMassTransit(x =>
         {

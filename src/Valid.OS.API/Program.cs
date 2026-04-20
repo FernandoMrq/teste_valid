@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -8,6 +9,7 @@ using Valid.OS.API.Middleware;
 using Valid.OS.Application;
 using Valid.OS.Infrastructure;
 using Valid.OS.Infrastructure.Options;
+using Valid.OS.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,8 +17,13 @@ builder.Host.UseSerilog((context, _, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
 
 builder.Services.AddScoped<ValidationFilter>();
+builder.Services.AddScoped<CurrentUserEnricherFilter>();
 
-builder.Services.AddControllers(options => options.Filters.AddService<ValidationFilter>())
+builder.Services.AddControllers(options =>
+    {
+        options.Filters.AddService<ValidationFilter>();
+        options.Filters.AddService<CurrentUserEnricherFilter>();
+    })
     .AddJsonOptions(options =>
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
@@ -79,6 +86,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    await using var scope = app.Services.CreateAsyncScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await db.Database.MigrateAsync();
+}
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
