@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Valid.OS.API.Filters;
 using Valid.OS.API.Middleware;
 using Valid.OS.Application;
 using Valid.OS.Infrastructure;
@@ -13,7 +14,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog((context, _, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
 
-builder.Services.AddControllers()
+builder.Services.AddScoped<ValidationFilter>();
+
+builder.Services.AddControllers(options => options.Filters.AddService<ValidationFilter>())
     .AddJsonOptions(options =>
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
