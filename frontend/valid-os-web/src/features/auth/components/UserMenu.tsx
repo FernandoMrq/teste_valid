@@ -9,26 +9,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../../../shared/ui/Dropdown'
+import { useCurrentUser } from '../api/useCurrentUser'
 import { useAuth } from '../hooks/useAuth'
 
-function displayName(
-  user: ReturnType<typeof useAuth>['user']
-): string | undefined {
-  if (!user || typeof user !== 'object') return undefined
-  const u = user as Record<string, unknown>
-  const name = u.name
-  const preferred = u.preferred_username
-  const email = u.email
-  if (typeof name === 'string' && name.length > 0) return name
-  if (typeof preferred === 'string' && preferred.length > 0)
-    return preferred
-  if (typeof email === 'string' && email.length > 0) return email
-  return undefined
+function initialsFromName(name: string | undefined): string {
+  if (!name?.trim()) return ''
+  const parts = name.trim().split(/\s+/)
+  if (parts.length === 1) {
+    return parts[0]!.slice(0, 2).toUpperCase()
+  }
+  const a = parts[0]![0]
+  const b = parts[parts.length - 1]![0]
+  return `${a ?? ''}${b ?? ''}`.toUpperCase()
 }
 
 export function UserMenu() {
-  const { user, logout } = useAuth()
-  const label = displayName(user)
+  const { logout } = useAuth()
+  const { data: me, isLoading } = useCurrentUser()
+
+  const displayName = me?.name?.trim() || me?.email || 'Conta'
+  const email = me?.email
+  const initials = initialsFromName(me?.name) || (email ? email[0]!.toUpperCase() : '')
 
   return (
     <DropdownMenu>
@@ -39,23 +40,35 @@ export function UserMenu() {
           'hover:bg-brand-800 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-900'
         )}
       >
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-700 text-brand-50">
-          <UserRound className="h-4 w-4" aria-hidden />
+        <span
+          className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-700 text-xs font-semibold text-brand-50"
+          aria-hidden
+        >
+          {isLoading ? (
+            <UserRound className="h-4 w-4" />
+          ) : initials ? (
+            initials
+          ) : (
+            <UserRound className="h-4 w-4" />
+          )}
         </span>
         <span className="hidden max-w-[10rem] truncate sm:inline">
-          {label ?? 'Conta'}
+          {displayName}
         </span>
         <ChevronDown className="h-4 w-4 opacity-80" aria-hidden />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-[12rem]">
-        {label ? (
-          <>
-            <DropdownMenuLabel className="font-normal text-neutral-700">
-              {label}
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-          </>
-        ) : null}
+        <DropdownMenuLabel className="space-y-0.5 font-normal">
+          <span className="block text-sm font-medium text-neutral-900">
+            {displayName}
+          </span>
+          {email ? (
+            <span className="block truncate text-xs text-neutral-500">
+              {email}
+            </span>
+          ) : null}
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer gap-2 text-danger focus:text-danger"
           onSelect={() => {
