@@ -1,8 +1,6 @@
-import { useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 
 import { useAuth } from '../hooks/useAuth'
-import { keycloak } from '../lib/keycloak'
 
 function AuthLoading() {
   return (
@@ -18,12 +16,6 @@ function AuthLoading() {
 
 export function ProtectedRoute() {
   const { initialized, authenticated } = useAuth()
-
-  useEffect(() => {
-    if (initialized && !authenticated) {
-      void keycloak.login()
-    }
-  }, [authenticated, initialized])
 
   if (!initialized) {
     return <AuthLoading />

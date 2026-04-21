@@ -1,7 +1,7 @@
 import { type ReactNode, useEffect, useMemo, useState } from 'react'
 
 import { AuthContext } from '../../features/auth/context/auth-context'
-import { keycloak } from '../../features/auth/lib/keycloak'
+import { initKeycloakOnce, keycloak } from '../../features/auth/lib/keycloak'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [initialized, setInitialized] = useState(false)
@@ -18,12 +18,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setToken(keycloak.token)
     }
 
-    void keycloak
-      .init({
-        onLoad: 'login-required',
-        pkceMethod: 'S256',
-        checkLoginIframe: false,
-      })
+    void initKeycloakOnce()
       .then((auth) => {
         setAuthenticated(auth)
         setToken(keycloak.token)
