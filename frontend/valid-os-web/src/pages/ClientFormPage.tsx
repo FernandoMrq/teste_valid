@@ -1,8 +1,17 @@
+import { useParams } from 'react-router-dom'
+
+import { ClientForm } from '../features/clients'
+
 export default function ClientFormPage() {
-  return (
-    <div>
-      <h1 className="text-2xl font-semibold text-neutral-900">Cliente</h1>
-      <p className="mt-2 text-neutral-600">Formulário em construção.</p>
-    </div>
-  )
+  const { id } = useParams<{ id: string }>()
+
+  if (id === 'new') {
+    return <ClientForm variant="create" />
+  }
+
+  if (id !== undefined && id !== '') {
+    return <ClientForm variant="detail" clientId={id} />
+  }
+
+  return null
 }
