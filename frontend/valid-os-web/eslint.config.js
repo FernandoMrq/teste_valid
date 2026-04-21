@@ -45,6 +45,7 @@ export default tseslint.config(
         {
           allow: [
             'react-dom/client',
+            '@hookform/resolvers/zod',
             '**/styles/**',
             '**/src/shared/**',
             '**/src/app/**',
