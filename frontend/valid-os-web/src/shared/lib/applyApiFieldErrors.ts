@@ -1,6 +1,6 @@
 import type { FieldPath, FieldValues, UseFormSetError } from 'react-hook-form'
 
-import { ApiError } from '../../../shared/api/apiError'
+import { ApiError } from '../api/apiError'
 
 /** Mapeia erros RFC 7807 (`errors`) para campos do formulário (FluentValidation usa PascalCase). */
 export function applyApiFieldErrors<T extends FieldValues>(

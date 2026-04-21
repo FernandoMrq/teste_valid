@@ -13,7 +13,7 @@ import { PageHeader } from '../../../shared/ui/PageHeader'
 
 import { useClientByIdQuery } from '../api/useClientByIdQuery'
 import { useCreateClientMutation } from '../api/useCreateClientMutation'
-import { applyApiFieldErrors } from '../lib/applyApiFieldErrors'
+import { applyApiFieldErrors } from '../../../shared/lib/applyApiFieldErrors'
 import {
   clientFormSchema,
   type ClientFormValues,

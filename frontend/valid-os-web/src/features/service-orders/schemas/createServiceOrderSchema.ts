@@ -4,7 +4,7 @@ const priorityEnum = z.enum(['Low', 'Medium', 'High', 'Critical'])
 
 export const createServiceOrderSchema = z.object({
   clientId: z.string().uuid(),
-  description: z.string().trim().min(1).max(4000),
+  description: z.string().trim().min(10).max(4000),
   priority: priorityEnum,
 })
 
