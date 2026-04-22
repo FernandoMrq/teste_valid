@@ -86,11 +86,41 @@ export const axiosClient: AxiosInstance = axios.create({
   },
 })
 
+/** Só força refresh no Keycloak se o access token expira em < 30s. Deduplica chamadas concorrentes. */
+const tokenRefreshSkewSec = 30
+let inFlightTokenRefresh: Promise<void> | null = null
+
+async function ensureFreshToken() {
+  const exp = keycloak.tokenParsed?.exp
+  if (typeof exp === 'number') {
+    const secondsLeft = exp - Math.floor(Date.now() / 1000)
+    if (secondsLeft > tokenRefreshSkewSec) {
+      return
+    }
+  }
+
+  if (inFlightTokenRefresh) {
+    return inFlightTokenRefresh
+  }
+
+  inFlightTokenRefresh = (async () => {
+    try {
+      await keycloak.updateToken(tokenRefreshSkewSec)
+    } catch {
+      void keycloak.login()
+      throw new Error('Reautenticação necessária')
+    } finally {
+      inFlightTokenRefresh = null
+    }
+  })()
+
+  return inFlightTokenRefresh
+}
+
 axiosClient.interceptors.request.use(async (config) => {
   try {
-    await keycloak.updateToken(60)
+    await ensureFreshToken()
   } catch {
-    await keycloak.login()
     throw new Error('Reautenticação necessária')
   }
 
