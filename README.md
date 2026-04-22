@@ -266,9 +266,36 @@ npm ci
 npm run test
 ```
 
+## Deploy futuro (GCP)
+
+O desafio cita GCP como diferencial. Não há pipeline de deploy neste repositório; abaixo está o desenho pretendido caso o projeto siga para produção.
+
+```mermaid
+flowchart LR
+    dev[GitHub push] --> cb[Cloud Build]
+    cb --> ar[Artifact Registry]
+    ar --> runApi[Cloud Run: API]
+    ar --> runWorker[Cloud Run: Worker]
+    runApi --> sql[(Cloud SQL PostgreSQL)]
+    runApi --> kc[Keycloak em Cloud Run]
+    runWorker --> mq[CloudAMQP RabbitMQ]
+    runApi --> mq
+    runWorker --> mongo[(MongoDB Atlas)]
+    sm[Secret Manager] -.-> runApi
+    sm -.-> runWorker
+```
+
+- **Cloud Run** para API e Worker como serviços independentes (autoscaling, pay-per-use, cold start aceitável para o caso).
+- **Cloud SQL for PostgreSQL** para o write model transacional; conexão via Cloud SQL Auth Proxy ou socket privado.
+- **MongoDB Atlas** para notificações (ou **Firestore** se preferir nativo GCP).
+- **CloudAMQP** (RabbitMQ gerenciado) para mensageria; alternativa nativa seria **Pub/Sub** com adapter MassTransit.
+- **Secret Manager** para credenciais (DB, broker, Keycloak client secret).
+- **Artifact Registry** para as imagens; **Cloud Build** disparado pelo GitHub constrói e publica.
+- **Keycloak** em Cloud Run com banco dedicado no Cloud SQL e realm versionado via GitOps.
+
 ## Próximos passos (fora do escopo atual)
 
-**Deploy em GCP** (ou outro cloud gerenciado) fica como evolução: neste repositório não há pipeline de deploy. Itens típicos deixados de fora por escopo incluem Outbox pattern, Event Sourcing, sagas, multi-tenancy, versionamento explícito da API, cache distribuído e autorização por papéis fina além de autenticação JWT.
+Itens deixados de fora por escopo: Outbox pattern, Event Sourcing, sagas, multi-tenancy, versionamento explícito da API, cache distribuído e autorização por papéis fina além de autenticação JWT.
 
 ## Autor
 
