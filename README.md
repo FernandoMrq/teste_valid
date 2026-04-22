@@ -294,12 +294,12 @@ npm run test:coverage
 
 ## Limitações conhecidas
 
-- **Deploy GCP** é proposta arquitetural (ver seção abaixo); não há pipeline de deploy neste repositório.
+- **GCP**: o material na seção abaixo é **extra** (contexto do desafio / diferencial opcional). **Este repositório não tem deploy de produção** e não pretende usar GCP em produção — era só o desenho arquitetural de referência.
 - **Email no IdP**: quando muda no Keycloak, `UserFactory.SyncKeycloakClaims` sinaliza a alteração mas não reemite o VO `Email` — ponto de extensão deliberado.
 
-## Deploy futuro (GCP)
+## GCP (material extra — sem produção neste projeto)
 
-O desafio cita GCP como diferencial. Não há pipeline de deploy neste repositório; abaixo está o desenho pretendido caso o projeto siga para produção.
+O desafio citava GCP como diferencial; a seção a seguir é **ilustrativa**, para documentar uma possível arquitetura em nuvem. **Não faz parte do caminho de produção deste projeto** (não há pipeline de deploy aqui e não há intenção de operar esta solução na GCP). Se outro time quiser evoluir o mesmo desenho, o diagrama e os bullets abaixo servem como ponto de partida.
 
 ```mermaid
 flowchart LR
