@@ -10,6 +10,6 @@ RUN dotnet publish src/Valid.OS.Worker/Valid.OS.Worker.csproj -c Release -o /app
 # Infrastructure referencia Microsoft.AspNetCore.App; runtime base não basta.
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS final
 WORKDIR /app
-COPY --from=build --chown=app:app /app/publish .
+COPY --from=build --chown=app:app --chmod=755 /app/publish .
 USER app
 ENTRYPOINT ["dotnet", "Valid.OS.Worker.dll"]
