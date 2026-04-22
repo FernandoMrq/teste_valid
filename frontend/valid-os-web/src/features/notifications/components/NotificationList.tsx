@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import { formatDate, shortId } from '../../../shared/lib'
 import {
   DataTable,
+  TableSkeleton,
   type DataTableColumn,
 } from '../../../shared/ui/DataTable'
 import { EmptyState } from '../../../shared/ui/EmptyState'
@@ -74,7 +75,7 @@ export function NotificationList() {
       <PageHeader title="Notificações" />
 
       {isLoading ? (
-        <p className="text-sm text-neutral-500">Carregando…</p>
+        <TableSkeleton columns={5} rows={5} />
       ) : isError ? (
         <p className="text-sm text-danger" role="alert">
           {(error as Error).message ?? 'Não foi possível carregar as notificações.'}
