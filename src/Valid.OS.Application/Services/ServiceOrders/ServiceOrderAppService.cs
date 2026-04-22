@@ -129,6 +129,14 @@ public sealed class ServiceOrderAppService : IServiceOrderAppService
         return new PagedResult<ServiceOrderDto>(dtos, total, query.Page, query.PageSize);
     }
 
+    public async Task<ServiceOrderSummaryDto> GetSummaryAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var closedSince = DateTimeOffset.UtcNow.AddDays(-7);
+        var s = await _orders.GetSummaryAsync(closedSince, cancellationToken).ConfigureAwait(false);
+        return new ServiceOrderSummaryDto(s.OpenTotal, s.CriticalOpenCount, s.ClosedLast7Days);
+    }
+
     private async Task<ServiceOrder> FindForUpdateOrThrowAsync(Guid id, CancellationToken cancellationToken)
     {
         return await _orders.GetByIdForUpdateAsync(id, cancellationToken).ConfigureAwait(false)

@@ -18,4 +18,6 @@ public interface IServiceOrderAppService
     Task<PagedResult<ServiceOrderDto>> ListAsync(
         ListServiceOrdersQuery query,
         CancellationToken cancellationToken = default);
+
+    Task<ServiceOrderSummaryDto> GetSummaryAsync(CancellationToken cancellationToken = default);
 }
