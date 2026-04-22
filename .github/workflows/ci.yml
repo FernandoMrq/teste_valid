@@ -101,8 +101,7 @@ jobs:
         with:
           name: frontend-coverage
           path: frontend/valid-os-web/coverage
-      # SonarCloud exige SonarScanner for .NET para C#; o action sonarcloud-github-action usa apenas o CLI,
-      # que não aplica análise/cobertura .NET (ver documentação "Scanner compatibility" em csharp.md).
+      # SonarScanner for .NET não aceita sonar-project.properties na raiz; escopo/cobertura vêm de SonarQube.Analysis.xml (/s:).
       - name: Install SonarScanner for .NET
         run: dotnet tool install --global dotnet-sonarscanner
       - name: Sonar — begin
@@ -110,6 +109,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: >
           dotnet sonarscanner begin
+          /s:"${{ github.workspace }}/SonarQube.Analysis.xml"
           /k:"FernandoMrq_teste_valid"
           /o:"fernandomrq"
           /d:sonar.host.url="https://sonarcloud.io"

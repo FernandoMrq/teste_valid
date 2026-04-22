@@ -286,7 +286,7 @@ npm run test:coverage
 
 ## Qualidade de código
 
-- **SonarCloud** configurado via `sonar-project.properties` na raiz; o job `sonar` do pipeline em `.github/workflows/ci.yml` executa após backend e frontend, consumindo cobertura OpenCover (.NET) e LCOV (JS/TS).
+- **SonarCloud** usa `SonarQube.Analysis.xml` na raiz (formato exigido pelo SonarScanner for .NET; não use `sonar-project.properties` na mesma pasta da solution). O job `sonar` em `.github/workflows/ci.yml` roda após backend e frontend e consome OpenCover (.NET) e LCOV (JS/TS).
 - **Conventional Commits** em pt-BR, commits atômicos por categoria (fix, refactor, chore, docs).
 - **XML docs** habilitadas em `Valid.OS.API` e `Valid.OS.Contracts`, expostas no Swagger.
 - **Healthchecks** para Postgres, Mongo, RabbitMQ e Keycloak no `docker-compose.yml`, com `depends_on: service_healthy` para a API.
