@@ -22,7 +22,6 @@ const mockKeycloak = {
 
 const defaultAuth: AuthContextValue = {
   keycloak: mockKeycloak,
-  token: 'test-token',
   initialized: true,
   authenticated: true,
   user: mockKeycloak.tokenParsed,

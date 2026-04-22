@@ -9,22 +9,20 @@ import { PostLoginPrefetch } from './PostLoginPrefetch'
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [initialized, setInitialized] = useState(false)
   const [authenticated, setAuthenticated] = useState(false)
-  const [token, setToken] = useState<string | undefined>(undefined)
 
   useEffect(() => {
-    keycloak.onTokenExpired = () =>
+    keycloak.onTokenExpired = () => {
+      // Refresh proativo. Se falhar, o interceptor de 401 no axios cuidará do
+      // fluxo de recuperação + redirect para login. Não chamamos login() aqui
+      // para manter um único ponto de falha.
       keycloak.updateToken(30).catch(() => {
-        void keycloak.login()
+        /* delega ao interceptor */
       })
-
-    keycloak.onAuthRefreshSuccess = () => {
-      setToken(keycloak.token)
     }
 
     void initKeycloakOnce()
       .then((auth) => {
         setAuthenticated(auth)
-        setToken(keycloak.token)
       })
       .finally(() => {
         setInitialized(true)
@@ -34,7 +32,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = useMemo(
     () => ({
       keycloak,
-      token,
       initialized,
       authenticated,
       user: keycloak.tokenParsed ?? undefined,
@@ -42,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         void keycloak.logout()
       },
     }),
-    [authenticated, initialized, token]
+    [authenticated, initialized]
   )
 
   return (

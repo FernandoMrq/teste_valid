@@ -20,7 +20,33 @@ export function initKeycloakOnce(): Promise<boolean> {
       onLoad: 'login-required',
       pkceMethod: 'S256',
       checkLoginIframe: false,
+      silentCheckSsoRedirectUri: `${window.location.origin}/silent-check-sso.html`,
     })
   }
   return initPromise
+}
+
+type AuthFailureListener = () => void
+const authFailureListeners = new Set<AuthFailureListener>()
+
+/**
+ * Registra um listener chamado quando a reautenticação falha de forma irrecuperável
+ * (refresh token inválido/expirado). Usado para limpar cache do React Query antes
+ * do redirect para o login, evitando que componentes renderizem dados obsoletos.
+ */
+export function onAuthFailure(listener: AuthFailureListener): () => void {
+  authFailureListeners.add(listener)
+  return () => {
+    authFailureListeners.delete(listener)
+  }
+}
+
+export function emitAuthFailure(): void {
+  for (const listener of authFailureListeners) {
+    try {
+      listener()
+    } catch {
+      // ignorado: um listener falho não pode impedir o fluxo de logout
+    }
+  }
 }

@@ -3,10 +3,11 @@ import axios, {
   AxiosHeaders,
   type AxiosInstance,
   type AxiosResponse,
+  type InternalAxiosRequestConfig,
 } from 'axios'
 
 import { env } from '../../env'
-import { keycloak } from '../../features/auth/lib/keycloak'
+import { emitAuthFailure, keycloak } from '../../features/auth/lib/keycloak'
 
 import { ApiError, type ProblemDetailsFieldErrors } from './apiError'
 
@@ -86,66 +87,67 @@ export const axiosClient: AxiosInstance = axios.create({
   },
 })
 
-/** Só força refresh no Keycloak se o access token expira em < 30s. Deduplica chamadas concorrentes. */
-const tokenRefreshSkewSec = 30
-let inFlightTokenRefresh: Promise<void> | null = null
+type RetryableConfig = InternalAxiosRequestConfig & { _retry?: boolean }
 
-async function ensureFreshToken() {
-  const exp = keycloak.tokenParsed?.exp
-  if (typeof exp === 'number') {
-    const secondsLeft = exp - Math.floor(Date.now() / 1000)
-    if (secondsLeft > tokenRefreshSkewSec) {
-      return
-    }
-  }
-
-  if (inFlightTokenRefresh) {
-    return inFlightTokenRefresh
-  }
-
-  inFlightTokenRefresh = (async () => {
-    try {
-      await keycloak.updateToken(tokenRefreshSkewSec)
-    } catch {
-      void keycloak.login()
-      throw new Error('Reautenticação necessária')
-    } finally {
-      inFlightTokenRefresh = null
-    }
-  })()
-
-  return inFlightTokenRefresh
-}
-
-axiosClient.interceptors.request.use(async (config) => {
-  try {
-    await ensureFreshToken()
-  } catch {
-    throw new Error('Reautenticação necessária')
-  }
-
-  const token = keycloak.token
-
+function applyAuthHeader(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig {
   const headers =
     config.headers instanceof AxiosHeaders
       ? config.headers
       : AxiosHeaders.from(config.headers ?? {})
 
+  const token = keycloak.token
   if (token) {
     headers.set('Authorization', `Bearer ${token}`)
   }
 
-  return {
-    ...config,
-    headers,
+  config.headers = headers
+  return config
+}
+
+axiosClient.interceptors.request.use((config) => applyAuthHeader(config))
+
+/** Deduplica refreshes concorrentes disparados por várias respostas 401 simultâneas. */
+let inFlightRecovery: Promise<boolean> | null = null
+
+async function tryRecoverSession(): Promise<boolean> {
+  if (!inFlightRecovery) {
+    inFlightRecovery = (async () => {
+      try {
+        // -1 força o refresh mesmo que keycloak-js julgue o token "válido".
+        const refreshed = await keycloak.updateToken(-1)
+        return refreshed && !!keycloak.token
+      } catch {
+        return false
+      } finally {
+        inFlightRecovery = null
+      }
+    })()
   }
-})
+  return inFlightRecovery
+}
 
 axiosClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError | Error) => {
     if (!axios.isAxiosError(error) || !error.response) {
       return Promise.reject(error)
+    }
+
+    const status = error.response.status
+    const originalConfig = error.config as RetryableConfig | undefined
+
+    if (status === 401 && originalConfig && !originalConfig._retry) {
+      originalConfig._retry = true
+
+      const recovered = await tryRecoverSession()
+      if (recovered) {
+        applyAuthHeader(originalConfig)
+        return axiosClient(originalConfig)
+      }
+
+      emitAuthFailure()
+      void keycloak.login()
+      return Promise.reject(await responseToApiError(error.response))
     }
 
     const apiError = await responseToApiError(error.response)

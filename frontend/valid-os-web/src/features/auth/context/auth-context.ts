@@ -4,7 +4,6 @@ import type Keycloak from 'keycloak-js'
 
 export type AuthContextValue = {
   keycloak: Keycloak
-  token: string | undefined
   initialized: boolean
   authenticated: boolean
   user: Keycloak['tokenParsed']

@@ -1,6 +1,8 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { type ReactNode, useState } from 'react'
 
+import { AuthFailureBridge } from './AuthFailureBridge'
+
 export function QueryProvider({ children }: { children: ReactNode }) {
   const [client] = useState(
     () =>
@@ -16,5 +18,10 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       })
   )
 
-  return <QueryClientProvider client={client}>{children}</QueryClientProvider>
+  return (
+    <QueryClientProvider client={client}>
+      <AuthFailureBridge />
+      {children}
+    </QueryClientProvider>
+  )
 }
