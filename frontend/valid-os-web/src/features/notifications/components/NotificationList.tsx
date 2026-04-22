@@ -15,6 +15,30 @@ import type { NotificationDto } from '../types'
 
 const PAGE_SIZE = 20
 
+function renderNotificationOsCell(row: NotificationDto) {
+  return (
+    <span className="font-mono text-sm">{shortId(row.serviceOrderId)}</span>
+  )
+}
+
+function renderNotificationClientCell(row: NotificationDto) {
+  return <span className="font-mono text-sm">{shortId(row.clientId)}</span>
+}
+
+function renderNotificationMessageCell(row: NotificationDto) {
+  return (
+    <span className="max-w-md text-sm text-neutral-900">{row.message}</span>
+  )
+}
+
+function renderNotificationProcessedCell(row: NotificationDto) {
+  return (
+    <span className="whitespace-nowrap text-sm">
+      {formatDate(row.processedAt)}
+    </span>
+  )
+}
+
 export function NotificationList() {
   const [page, setPage] = useState(1)
 
@@ -28,23 +52,17 @@ export function NotificationList() {
       {
         header: 'OS',
         accessor: 'serviceOrderId',
-        cell: (row) => (
-          <span className="font-mono text-sm">{shortId(row.serviceOrderId)}</span>
-        ),
+        cell: renderNotificationOsCell,
       },
       {
         header: 'Cliente',
         accessor: 'clientId',
-        cell: (row) => (
-          <span className="font-mono text-sm">{shortId(row.clientId)}</span>
-        ),
+        cell: renderNotificationClientCell,
       },
       {
         header: 'Mensagem',
         accessor: 'message',
-        cell: (row) => (
-          <span className="max-w-md text-sm text-neutral-900">{row.message}</span>
-        ),
+        cell: renderNotificationMessageCell,
       },
       {
         header: 'Canal',
@@ -53,11 +71,7 @@ export function NotificationList() {
       {
         header: 'Processado em',
         accessor: 'processedAt',
-        cell: (row) => (
-          <span className="whitespace-nowrap text-sm">
-            {formatDate(row.processedAt)}
-          </span>
-        ),
+        cell: renderNotificationProcessedCell,
       },
     ],
     []
@@ -70,32 +84,40 @@ export function NotificationList() {
     />
   )
 
+  const listSection = (() => {
+    if (isLoading) {
+      return <TableSkeleton columns={5} rows={5} />
+    }
+    if (isError) {
+      return (
+        <p className="text-sm text-danger" role="alert">
+          {(error as Error).message ?? 'Não foi possível carregar as notificações.'}
+        </p>
+      )
+    }
+    return (
+      <>
+        <DataTable<NotificationDto>
+          columns={columns}
+          rows={data?.items ?? []}
+          getRowId={(row) => row.id}
+          emptyContent={empty}
+        />
+        <Pagination
+          page={page}
+          pageSize={PAGE_SIZE}
+          total={data?.total ?? 0}
+          onChange={setPage}
+        />
+      </>
+    )
+  })()
+
   return (
     <div className="space-y-6">
       <PageHeader title="Notificações" />
 
-      {isLoading ? (
-        <TableSkeleton columns={5} rows={5} />
-      ) : isError ? (
-        <p className="text-sm text-danger" role="alert">
-          {(error as Error).message ?? 'Não foi possível carregar as notificações.'}
-        </p>
-      ) : (
-        <>
-          <DataTable<NotificationDto>
-            columns={columns}
-            rows={data?.items ?? []}
-            getRowId={(row) => row.id}
-            emptyContent={empty}
-          />
-          <Pagination
-            page={page}
-            pageSize={PAGE_SIZE}
-            total={data?.total ?? 0}
-            onChange={setPage}
-          />
-        </>
-      )}
+      {listSection}
     </div>
   )
 }
