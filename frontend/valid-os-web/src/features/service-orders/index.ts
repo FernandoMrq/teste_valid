@@ -17,6 +17,7 @@ export {
   type ListServiceOrdersParams,
   type UpdateServiceOrderBody,
 } from './api/serviceOrdersApi'
+export { serviceOrdersQueryOptions } from './api/serviceOrdersQueryOptions'
 export { useCreateServiceOrderMutation } from './api/useCreateServiceOrderMutation'
 export { useServiceOrderQuery } from './api/useServiceOrderQuery'
 export { useServiceOrdersQuery } from './api/useServiceOrdersQuery'
