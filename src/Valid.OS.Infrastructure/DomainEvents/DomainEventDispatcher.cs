@@ -1,9 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Valid.OS.Domain.Events;
 
 namespace Valid.OS.Infrastructure.DomainEvents;
 
-public sealed class DomainEventDispatcher(IServiceProvider serviceProvider) : IDomainEventDispatcher
+public sealed class DomainEventDispatcher(
+    IServiceProvider serviceProvider,
+    ILogger<DomainEventDispatcher> logger) : IDomainEventDispatcher
 {
     public async Task DispatchAsync(IDomainEvent domainEvent, CancellationToken cancellationToken = default)
     {
@@ -27,8 +30,20 @@ public sealed class DomainEventDispatcher(IServiceProvider serviceProvider) : ID
                 continue;
             }
 
-            var task = (Task)handleAsync.Invoke(handler, [domainEvent, cancellationToken])!;
-            await task.ConfigureAwait(false);
+            try
+            {
+                var task = (Task)handleAsync.Invoke(handler, [domainEvent, cancellationToken])!;
+                await task.ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(
+                    ex,
+                    "Domain event handler {Handler} failed for event {Event}",
+                    handler.GetType().Name,
+                    eventType.Name);
+                throw;
+            }
         }
     }
 }
