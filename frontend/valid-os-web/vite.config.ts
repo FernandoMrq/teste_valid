@@ -24,6 +24,7 @@ export default defineConfig({
         'src/**/*.d.ts',
         'src/main.tsx',
         'src/vite-env.d.ts',
+        'src/app/router/**',
       ],
     },
   },
