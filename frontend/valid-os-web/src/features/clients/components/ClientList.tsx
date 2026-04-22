@@ -1,10 +1,11 @@
 import { Plus, Search } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
+import { useDebounce } from '../../../shared/hooks/useDebounce'
 import { cn } from '../../../shared/lib'
 import { buttonVariants } from '../../../shared/ui/Button/button-variants'
-import { DataTable } from '../../../shared/ui/DataTable'
+import { DataTable, TableSkeleton } from '../../../shared/ui/DataTable'
 import { EmptyState } from '../../../shared/ui/EmptyState'
 import { Input } from '../../../shared/ui/Input'
 import { Pagination } from '../../../shared/ui/Pagination'
@@ -20,16 +21,21 @@ const PAGE_SIZE = 20
 export function ClientList() {
   const [page, setPage] = useState(1)
   const [searchDraft, setSearchDraft] = useState('')
-  const [search, setSearch] = useState('')
+  const debouncedSearch = useDebounce(searchDraft, 300)
+  const search = debouncedSearch.trim() === '' ? '' : debouncedSearch.trim()
 
   const queryParams = useMemo(
     () => ({
       page,
       pageSize: PAGE_SIZE,
-      search: search.trim() === '' ? undefined : search.trim(),
+      search: search === '' ? undefined : search,
     }),
     [page, search]
   )
+
+  useEffect(() => {
+    setPage(1)
+  }, [search])
 
   const { data, isLoading, isError, error } = useClientsQuery(queryParams)
 
@@ -59,14 +65,7 @@ export function ClientList() {
       <PageHeader title="Clientes" actions={newClientLink} />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-        <form
-          className="flex flex-1 flex-col gap-2 sm:max-w-md"
-          onSubmit={(e) => {
-            e.preventDefault()
-            setSearch(searchDraft)
-            setPage(1)
-          }}
-        >
+        <div className="flex flex-1 flex-col gap-2 sm:max-w-md">
           <label className="text-sm font-medium text-neutral-700" htmlFor="client-search">
             Buscar
           </label>
@@ -78,11 +77,11 @@ export function ClientList() {
             onChange={(e) => setSearchDraft(e.target.value)}
             leadingIcon={<Search className="h-4 w-4" aria-hidden />}
           />
-        </form>
+        </div>
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-neutral-500">Carregando…</p>
+        <TableSkeleton columns={1} rows={5} />
       ) : isError ? (
         <p className="text-sm text-danger" role="alert">
           {(error as Error).message ?? 'Não foi possível carregar os clientes.'}
@@ -94,7 +93,7 @@ export function ClientList() {
             rows={data?.items ?? []}
             getRowId={(row) => row.id}
             emptyContent={
-              search.trim() !== '' ? (
+              search !== '' ? (
                 <EmptyState
                   className="m-2 border-0 bg-transparent"
                   title="Nenhum resultado"
