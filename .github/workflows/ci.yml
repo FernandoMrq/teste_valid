@@ -68,11 +68,12 @@ jobs:
       - name: Build
         run: npm run build
       - name: Upload frontend coverage
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: frontend-coverage
           path: frontend/valid-os-web/coverage/lcov.info
-          if-no-files-found: warn
+          if-no-files-found: ignore
 
   sonar:
     name: SonarCloud
@@ -89,6 +90,7 @@ jobs:
           name: backend-coverage
           path: TestResults
       - name: Download frontend coverage
+        continue-on-error: true
         uses: actions/download-artifact@v4
         with:
           name: frontend-coverage
