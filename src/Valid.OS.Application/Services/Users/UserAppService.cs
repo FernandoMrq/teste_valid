@@ -35,6 +35,11 @@ public sealed class UserAppService : IUserAppService
         var existing = await _users.GetByKeycloakIdAsync(keycloakId, cancellationToken).ConfigureAwait(false);
         if (existing is not null)
         {
+            if (_userFactory.SyncKeycloakClaims(existing, email, name))
+            {
+                await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            }
+
             return UserMapper.ToDto(existing);
         }
 

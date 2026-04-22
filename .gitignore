@@ -74,3 +74,6 @@ storybook-static/
 
 ## OS.DS_Store
 Thumbs.db
+
+## Cursor agent artifacts
+.cursor/
