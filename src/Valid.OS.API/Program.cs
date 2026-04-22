@@ -17,12 +17,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog((context, _, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
 
-builder.Services.AddScoped<ValidationFilter>();
 builder.Services.AddScoped<CurrentUserEnricherFilter>();
 
 builder.Services.AddControllers(options =>
     {
-        options.Filters.AddService<ValidationFilter>();
         options.Filters.AddService<CurrentUserEnricherFilter>();
     })
     .AddJsonOptions(options =>
