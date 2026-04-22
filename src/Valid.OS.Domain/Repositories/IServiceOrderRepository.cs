@@ -1,3 +1,4 @@
+using Valid.OS.Domain;
 using Valid.OS.Domain.Entities;
 using Valid.OS.Domain.Specifications;
 
@@ -17,5 +18,9 @@ public interface IServiceOrderRepository
         Specification<ServiceOrder> specification,
         int page,
         int pageSize,
+        CancellationToken cancellationToken = default);
+
+    Task<ServiceOrderSummary> GetSummaryAsync(
+        DateTimeOffset closedSince,
         CancellationToken cancellationToken = default);
 }
