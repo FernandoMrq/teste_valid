@@ -15,14 +15,12 @@ let initPromise: Promise<boolean> | null = null
  * a second concurrent `init` breaks PKCE / hash handling and causes redirect loops.
  */
 export function initKeycloakOnce(): Promise<boolean> {
-  if (!initPromise) {
-    initPromise = keycloak.init({
-      onLoad: 'login-required',
-      pkceMethod: 'S256',
-      checkLoginIframe: false,
-      silentCheckSsoRedirectUri: `${window.location.origin}/silent-check-sso.html`,
-    })
-  }
+  initPromise ??= keycloak.init({
+    onLoad: 'login-required',
+    pkceMethod: 'S256',
+    checkLoginIframe: false,
+    silentCheckSsoRedirectUri: `${globalThis.location.origin}/silent-check-sso.html`,
+  })
   return initPromise
 }
 
