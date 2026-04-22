@@ -294,7 +294,6 @@ npm run test:coverage
 
 ## Limitações conhecidas
 
-- **Frontend — Vitest 4**: o `tests/setup.ts` registra `afterEach` global e, em algumas combinações de versão do Vitest 4, o runner levanta `Vitest failed to find the current suite` antes de coletar a cobertura. No CI o passo `Test + Coverage` do frontend está marcado como `continue-on-error: true` e o upload do LCOV com `if-no-files-found: ignore` para não bloquear o pipeline enquanto a suíte é estabilizada. A cobertura `.NET` segue sendo enviada ao SonarCloud em todas as execuções.
 - **Deploy GCP** é proposta arquitetural (ver seção abaixo); não há pipeline de deploy neste repositório.
 - **Email no IdP**: quando muda no Keycloak, `UserFactory.SyncKeycloakClaims` sinaliza a alteração mas não reemite o VO `Email` — ponto de extensão deliberado.
 
