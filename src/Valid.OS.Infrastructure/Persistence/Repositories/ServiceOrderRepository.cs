@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Valid.OS.Domain;
 using Valid.OS.Domain.Entities;
+using Valid.OS.Domain.Enums;
 using Valid.OS.Domain.Repositories;
 using Valid.OS.Domain.Specifications;
 
@@ -54,5 +56,41 @@ public sealed class ServiceOrderRepository(AppDbContext context) : IServiceOrder
             .ToListAsync(cancellationToken);
 
         return (items, totalCount);
+    }
+
+    public async Task<ServiceOrderSummary> GetSummaryAsync(
+        DateTimeOffset closedSince,
+        CancellationToken cancellationToken = default)
+    {
+        var open = new[]
+        {
+            ServiceOrderStatus.Open,
+            ServiceOrderStatus.InProgress,
+            ServiceOrderStatus.AwaitingCustomer,
+            ServiceOrderStatus.Resolved,
+        };
+
+        var openTotal = await context.ServiceOrders
+            .AsNoTracking()
+            .CountAsync(o => open.Contains(o.Status), cancellationToken)
+            .ConfigureAwait(false);
+
+        var criticalOpenCount = await context.ServiceOrders
+            .AsNoTracking()
+            .CountAsync(
+                o => o.Priority == Priority.Critical && o.Status != ServiceOrderStatus.Closed,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        var closedLast7Days = await context.ServiceOrders
+            .AsNoTracking()
+            .CountAsync(
+                o => o.Status == ServiceOrderStatus.Closed
+                    && o.ClosedAt != null
+                    && o.ClosedAt >= closedSince,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        return new ServiceOrderSummary(openTotal, criticalOpenCount, closedLast7Days);
     }
 }
