@@ -41,6 +41,14 @@ public sealed class ServiceOrdersController : ControllerBase
         return Ok(page);
     }
 
+    [HttpGet("summary")]
+    [ProducesResponseType(typeof(ServiceOrderSummaryDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ServiceOrderSummaryDto>> Summary(CancellationToken cancellationToken)
+    {
+        var summary = await _orders.GetSummaryAsync(cancellationToken).ConfigureAwait(false);
+        return Ok(summary);
+    }
+
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(ServiceOrderDetailsDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
