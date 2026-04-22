@@ -21,10 +21,10 @@ const priorityLabel: Record<Priority, string> = {
   Critical: 'Crítica',
 }
 
-type Props = {
+type Props = Readonly<{
   priority: Priority
   className?: string
-}
+}>
 
 export function PriorityBadge({ priority, className }: Props) {
   return (

@@ -24,6 +24,29 @@ function hasActiveFilters(f: ServiceOrderFilterValues) {
   return f.status != null || f.priority != null || f.clientId != null
 }
 
+function renderServiceOrderSummaryCell(row: ServiceOrderDto) {
+  return <ServiceOrderListItem order={row} />
+}
+
+function renderServiceOrderActionsCell(row: ServiceOrderDto) {
+  return (
+    <div className="flex justify-end gap-2">
+      <Link
+        className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }))}
+        to={`/service-orders/${row.id}/details`}
+      >
+        Detalhes
+      </Link>
+      <Link
+        className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }))}
+        to={`/service-orders/${row.id}`}
+      >
+        Editar
+      </Link>
+    </div>
+  )
+}
+
 export function ServiceOrderList() {
   const [page, setPage] = useState(1)
   const [filters, setFilters] = useState<ServiceOrderFilterValues>({
@@ -50,27 +73,12 @@ export function ServiceOrderList() {
       {
         header: 'Ordem de serviço',
         accessor: 'id' as const,
-        cell: (row: ServiceOrderDto) => <ServiceOrderListItem order={row} />,
+        cell: renderServiceOrderSummaryCell,
       },
       {
         header: '',
         accessor: 'id' as const,
-        cell: (row: ServiceOrderDto) => (
-          <div className="flex justify-end gap-2">
-            <Link
-              className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }))}
-              to={`/service-orders/${row.id}/details`}
-            >
-              Detalhes
-            </Link>
-            <Link
-              className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }))}
-              to={`/service-orders/${row.id}`}
-            >
-              Editar
-            </Link>
-          </div>
-        ),
+        cell: renderServiceOrderActionsCell,
       },
     ],
     []
@@ -85,6 +93,51 @@ export function ServiceOrderList() {
       Nova OS
     </Link>
   )
+
+  const listSection = (() => {
+    if (isLoading) {
+      return <TableSkeleton columns={2} rows={5} />
+    }
+    if (isError) {
+      return (
+        <p className="text-sm text-danger" role="alert">
+          {error instanceof Error ? error.message : 'Não foi possível carregar as OS.'}
+        </p>
+      )
+    }
+    return (
+      <>
+        <DataTable<ServiceOrderDto>
+          columns={columns}
+          rows={data?.items ?? []}
+          getRowId={(row) => row.id}
+          emptyContent={
+            hasActiveFilters(filters) ? (
+              <EmptyState
+                className="m-2 border-0 bg-transparent"
+                title="Nenhuma ordem encontrada"
+                description="Ajuste os filtros ou cadastre uma nova ordem de serviço."
+                action={newOsLink}
+              />
+            ) : (
+              <EmptyState
+                className="m-2 border-0 bg-transparent"
+                title="Nenhuma ordem de serviço ainda"
+                description="Crie a primeira ordem para acompanhar atendimentos e status."
+                action={newOsLink}
+              />
+            )
+          }
+        />
+        <Pagination
+          page={page}
+          pageSize={PAGE_SIZE}
+          total={data?.total ?? 0}
+          onChange={setPage}
+        />
+      </>
+    )
+  })()
 
   return (
     <div className="space-y-6">
@@ -101,44 +154,7 @@ export function ServiceOrderList() {
         }}
       />
 
-      {isLoading ? (
-        <TableSkeleton columns={2} rows={5} />
-      ) : isError ? (
-        <p className="text-sm text-danger" role="alert">
-          {error instanceof Error ? error.message : 'Não foi possível carregar as OS.'}
-        </p>
-      ) : (
-        <>
-          <DataTable<ServiceOrderDto>
-            columns={columns}
-            rows={data?.items ?? []}
-            getRowId={(row) => row.id}
-            emptyContent={
-              hasActiveFilters(filters) ? (
-                <EmptyState
-                  className="m-2 border-0 bg-transparent"
-                  title="Nenhuma ordem encontrada"
-                  description="Ajuste os filtros ou cadastre uma nova ordem de serviço."
-                  action={newOsLink}
-                />
-              ) : (
-                <EmptyState
-                  className="m-2 border-0 bg-transparent"
-                  title="Nenhuma ordem de serviço ainda"
-                  description="Crie a primeira ordem para acompanhar atendimentos e status."
-                  action={newOsLink}
-                />
-              )
-            }
-          />
-          <Pagination
-            page={page}
-            pageSize={PAGE_SIZE}
-            total={data?.total ?? 0}
-            onChange={setPage}
-          />
-        </>
-      )}
+      {listSection}
     </div>
   )
 }

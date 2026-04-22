@@ -5,9 +5,9 @@ import type { ServiceOrderDto } from '../types'
 import { PriorityBadge } from './PriorityBadge'
 import { StatusBadge } from './StatusBadge'
 
-type Props = {
+type Props = Readonly<{
   order: ServiceOrderDto
-}
+}>
 
 export function ServiceOrderListItem({ order }: Props) {
   return (

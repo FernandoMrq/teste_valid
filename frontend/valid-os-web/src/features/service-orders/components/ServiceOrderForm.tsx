@@ -26,7 +26,7 @@ export function ServiceOrderForm() {
   return <ServiceOrderEditView id={id} />
 }
 
-function ServiceOrderEditView({ id }: { id: string }) {
+function ServiceOrderEditView({ id }: Readonly<{ id: string }>) {
   const detailQuery = useServiceOrderQuery(id)
   const [statusDialogOpen, setStatusDialogOpen] = useState(false)
 
@@ -66,7 +66,9 @@ function ServiceOrderEditView({ id }: { id: string }) {
         currentStatus={order.status}
         open={statusDialogOpen}
         onOpenChange={setStatusDialogOpen}
-        onUpdated={() => void detailQuery.refetch()}
+        onUpdated={() => {
+          detailQuery.refetch().catch(() => undefined)
+        }}
       />
     </div>
   )

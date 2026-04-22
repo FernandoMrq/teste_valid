@@ -23,13 +23,13 @@ import type { ServiceOrderStatus } from '../types'
 
 import { statusOptions } from './serviceOrderOptions'
 
-type Props = {
+type Props = Readonly<{
   orderId: string
   currentStatus: ServiceOrderStatus
   open: boolean
   onOpenChange: (open: boolean) => void
   onUpdated?: () => void
-}
+}>
 
 export function ServiceOrderStatusDialog({
   orderId,

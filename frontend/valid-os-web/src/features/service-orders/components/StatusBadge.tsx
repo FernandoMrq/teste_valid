@@ -23,10 +23,10 @@ const statusLabel: Record<ServiceOrderStatus, string> = {
   Closed: 'Encerrada',
 }
 
-type Props = {
+type Props = Readonly<{
   status: ServiceOrderStatus
   className?: string
-}
+}>
 
 export function StatusBadge({ status, className }: Props) {
   return (

@@ -31,9 +31,9 @@ const apiFieldMap: Record<string, keyof UpdateServiceOrderFormValues> = {
   Priority: 'priority',
 }
 
-type Props = {
+type Props = Readonly<{
   order: ServiceOrderDetailsDto
-}
+}>
 
 export function ServiceOrderEditForm({ order }: Props) {
   const navigate = useNavigate()
