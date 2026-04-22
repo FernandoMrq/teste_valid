@@ -35,6 +35,11 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
     });
 
+    foreach (var xmlPath in Directory.EnumerateFiles(AppContext.BaseDirectory, "*.xml"))
+    {
+        options.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
+    }
+
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
