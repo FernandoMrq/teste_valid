@@ -6,7 +6,7 @@ export type AuthContextValue = {
   keycloak: Keycloak
   initialized: boolean
   authenticated: boolean
-  user: Keycloak['tokenParsed']
+  user: Keycloak['tokenParsed'] | undefined
   logout: () => void
 }
 
