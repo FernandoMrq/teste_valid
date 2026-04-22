@@ -19,12 +19,12 @@ public sealed class UnitOfWork(AppDbContext context, IDomainEventDispatcher doma
             .SelectMany(e => e.DomainEvents)
             .ToList();
 
+        var rows = await context.SaveChangesAsync(cancellationToken);
+
         foreach (var entity in aggregatesWithEvents)
         {
             entity.ClearDomainEvents();
         }
-
-        var rows = await context.SaveChangesAsync(cancellationToken);
 
         foreach (var domainEvent in domainEvents)
         {
