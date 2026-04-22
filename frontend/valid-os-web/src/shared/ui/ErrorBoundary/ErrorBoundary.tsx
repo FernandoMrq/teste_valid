@@ -1,9 +1,9 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 
-type Props = {
+type Props = Readonly<{
   children: ReactNode
   fallback?: ReactNode
-}
+}>
 
 type State = {
   error: Error | null
@@ -22,7 +22,7 @@ export class ErrorBoundary extends Component<Props, State> {
     }
   }
 
-  private handleReset = (): void => {
+  private readonly handleReset = (): void => {
     this.setState({ error: null })
   }
 
@@ -54,7 +54,7 @@ export class ErrorBoundary extends Component<Props, State> {
           </button>
           <button
             type="button"
-            onClick={() => window.location.reload()}
+            onClick={() => globalThis.location.reload()}
             className="inline-flex h-10 items-center justify-center rounded-md bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700"
           >
             Recarregar

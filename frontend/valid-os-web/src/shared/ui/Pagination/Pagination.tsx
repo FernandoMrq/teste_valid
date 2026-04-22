@@ -22,7 +22,7 @@ export function Pagination({
   total,
   onChange,
   className,
-}: PaginationProps) {
+}: Readonly<PaginationProps>) {
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
   const current = Math.min(Math.max(1, page), totalPages)
 
@@ -58,7 +58,7 @@ export function Pagination({
         {pages.map((p, i) =>
           p === -1 ? (
             <span
-              key={`ellipsis-${i}`}
+              key={`ellipsis-${pages.slice(0, i + 1).filter((x) => x === -1).length}`}
               className="px-2 text-sm text-neutral-500"
               aria-hidden
             >

@@ -16,6 +16,13 @@ export interface DataTableProps<T> {
   emptyContent?: ReactNode
 }
 
+function columnKey<T>(col: DataTableColumn<T>): string {
+  if (typeof col.accessor === 'function') {
+    return col.header
+  }
+  return `${col.header}:${String(col.accessor)}`
+}
+
 function resolveCell<T>(col: DataTableColumn<T>, row: T): ReactNode {
   if (col.cell) {
     return col.cell(row)
@@ -43,7 +50,7 @@ export function DataTable<T>({
   getRowId,
   className,
   emptyContent,
-}: DataTableProps<T>) {
+}: Readonly<DataTableProps<T>>) {
   if (rows.length === 0) {
     return (
       <div className={cn('rounded-lg border border-neutral-200 bg-white', className)}>
@@ -64,9 +71,9 @@ export function DataTable<T>({
       <table className="min-w-full border-collapse text-left text-sm">
         <thead>
           <tr className="border-b border-neutral-200 bg-neutral-50">
-            {columns.map((col, colIndex) => (
+            {columns.map((col) => (
               <th
-                key={colIndex}
+                key={columnKey(col)}
                 scope="col"
                 className="whitespace-nowrap px-4 py-3 font-medium text-neutral-700"
               >
@@ -81,8 +88,8 @@ export function DataTable<T>({
               key={getRowId(row)}
               className="border-b border-neutral-100 last:border-0"
             >
-              {columns.map((col, colIndex) => (
-                <td key={colIndex} className="px-4 py-3 text-neutral-900">
+              {columns.map((col) => (
+                <td key={columnKey(col)} className="px-4 py-3 text-neutral-900">
                   {resolveCell(col, row)}
                 </td>
               ))}
