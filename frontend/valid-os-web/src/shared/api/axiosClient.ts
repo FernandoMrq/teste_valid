@@ -37,8 +37,9 @@ function parseProblemDetails(status: number, data: unknown): ApiError | null {
     errors = payload.errors as ProblemDetailsFieldErrors
   }
 
-  return new ApiError(status, payload.title, `${payload.title}`, {
-    detail: typeof payload.detail === 'string' ? payload.detail : undefined,
+  const detail = typeof payload.detail === 'string' ? payload.detail : undefined
+  return new ApiError(status, payload.title, detail ?? payload.title, {
+    detail,
     errors,
   })
 }
