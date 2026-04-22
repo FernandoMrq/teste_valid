@@ -88,7 +88,7 @@ export const axiosClient: AxiosInstance = axios.create({
 
 axiosClient.interceptors.request.use(async (config) => {
   try {
-    await keycloak.updateToken(10)
+    await keycloak.updateToken(60)
   } catch {
     await keycloak.login()
     throw new Error('Reautenticação necessária')

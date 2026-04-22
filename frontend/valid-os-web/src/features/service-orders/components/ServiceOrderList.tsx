@@ -105,7 +105,7 @@ export function ServiceOrderList() {
         <p className="text-sm text-neutral-500">Carregando…</p>
       ) : isError ? (
         <p className="text-sm text-danger" role="alert">
-          {(error as Error).message ?? 'Não foi possível carregar as OS.'}
+          {error instanceof Error ? error.message : 'Não foi possível carregar as OS.'}
         </p>
       ) : (
         <>
