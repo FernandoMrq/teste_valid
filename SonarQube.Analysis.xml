@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- SonarScanner for .NET não aceita sonar-project.properties na raiz; use este arquivo + /s: no "begin". -->
 <SonarQubeAnalysisProperties xmlns="http://www.sonarsource.com/msbuild/integration/2015/1">
-  <!-- Projetos .NET são auto-descobertos via MSBuild; aqui só declaramos o frontend. -->
   <Property Name="sonar.sources">frontend/valid-os-web/src</Property>
   <Property Name="sonar.tests">frontend/valid-os-web/src</Property>
   <Property Name="sonar.test.inclusions">**/*.test.ts,**/*.test.tsx</Property>
