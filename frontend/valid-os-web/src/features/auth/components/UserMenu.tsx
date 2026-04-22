@@ -1,4 +1,5 @@
 import { ChevronDown, LogOut, UserRound } from 'lucide-react'
+import type { ReactNode } from 'react'
 
 import { cn } from '../../../shared/lib'
 import {
@@ -31,6 +32,15 @@ export function UserMenu() {
   const email = me?.email
   const initials = initialsFromName(me?.name) || (email ? email[0]!.toUpperCase() : '')
 
+  let avatarContent: ReactNode
+  if (isLoading) {
+    avatarContent = <UserRound className="h-4 w-4" />
+  } else if (initials) {
+    avatarContent = initials
+  } else {
+    avatarContent = <UserRound className="h-4 w-4" />
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -44,13 +54,7 @@ export function UserMenu() {
           className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-700 text-xs font-semibold text-brand-50"
           aria-hidden
         >
-          {isLoading ? (
-            <UserRound className="h-4 w-4" />
-          ) : initials ? (
-            initials
-          ) : (
-            <UserRound className="h-4 w-4" />
-          )}
+          {avatarContent}
         </span>
         <span className="hidden max-w-[10rem] truncate sm:inline">
           {displayName}
