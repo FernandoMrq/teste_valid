@@ -11,13 +11,13 @@ export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <ErrorBoundary>
       <BrowserRouter>
-        <AuthProvider>
-          <QueryProvider>
+        <QueryProvider>
+          <AuthProvider>
             <ToastProvider>
               <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
             </ToastProvider>
-          </QueryProvider>
-        </AuthProvider>
+          </AuthProvider>
+        </QueryProvider>
       </BrowserRouter>
     </ErrorBoundary>
   )
