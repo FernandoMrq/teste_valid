@@ -1,11 +1,14 @@
+import { useQueries } from '@tanstack/react-query'
 import { subDays } from 'date-fns'
 import { Plus } from 'lucide-react'
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
-import { useServiceOrdersQuery } from '../features/service-orders'
+import { serviceOrdersQueryOptions } from '../features/service-orders'
 import { cn } from '../shared/lib'
 import { buttonVariants } from '../shared/ui/Button/button-variants'
+
+const openStatuses = ['Open', 'InProgress', 'AwaitingCustomer', 'Resolved'] as const
 
 function MetricTile(props: {
   label: string
@@ -31,31 +34,15 @@ function MetricTile(props: {
 }
 
 export default function DashboardPage() {
-  const openStatuses = ['Open', 'InProgress', 'AwaitingCustomer', 'Resolved'] as const
-
-  const qOpen = useServiceOrdersQuery({ page: 1, pageSize: 1, status: 'Open' })
-  const qInProgress = useServiceOrdersQuery({
-    page: 1,
-    pageSize: 1,
-    status: 'InProgress',
-  })
-  const qAwaiting = useServiceOrdersQuery({
-    page: 1,
-    pageSize: 1,
-    status: 'AwaitingCustomer',
-  })
-  const qResolved = useServiceOrdersQuery({ page: 1, pageSize: 1, status: 'Resolved' })
-
-  const qCritical = useServiceOrdersQuery({
-    page: 1,
-    pageSize: 500,
-    priority: 'Critical',
-  })
-
-  const qClosed = useServiceOrdersQuery({
-    page: 1,
-    pageSize: 500,
-    status: 'Closed',
+  const [qOpen, qInProgress, qAwaiting, qResolved, qCritical, qClosed] = useQueries({
+    queries: [
+      serviceOrdersQueryOptions({ page: 1, pageSize: 1, status: 'Open' }),
+      serviceOrdersQueryOptions({ page: 1, pageSize: 1, status: 'InProgress' }),
+      serviceOrdersQueryOptions({ page: 1, pageSize: 1, status: 'AwaitingCustomer' }),
+      serviceOrdersQueryOptions({ page: 1, pageSize: 1, status: 'Resolved' }),
+      serviceOrdersQueryOptions({ page: 1, pageSize: 500, priority: 'Critical' }),
+      serviceOrdersQueryOptions({ page: 1, pageSize: 500, status: 'Closed' }),
+    ],
   })
 
   const totalAbertas = useMemo(
