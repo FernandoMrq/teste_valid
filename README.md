@@ -2,6 +2,14 @@
 
 > Desafio técnico Valid — vaga Analista Desenvolvedor Sênior (.NET + React)
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=FernandoMrq_teste_valid&metric=alert_status)](https://sonarcloud.io/summary/overall?id=FernandoMrq_teste_valid)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=FernandoMrq_teste_valid&metric=sqale_rating)](https://sonarcloud.io/summary/overall?id=FernandoMrq_teste_valid)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=FernandoMrq_teste_valid&metric=coverage)](https://sonarcloud.io/summary/overall?id=FernandoMrq_teste_valid)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=FernandoMrq_teste_valid&metric=bugs)](https://sonarcloud.io/summary/overall?id=FernandoMrq_teste_valid)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=FernandoMrq_teste_valid&metric=code_smells)](https://sonarcloud.io/summary/overall?id=FernandoMrq_teste_valid)
+
+Dashboard público: <https://sonarcloud.io/summary/overall?id=FernandoMrq_teste_valid&branch=main>
+
 ## Descrição
 
 Valid OS é um sistema de gestão de ordens de serviço (chamados) com autenticação delegada ao Keycloak, persistência relacional em PostgreSQL, registro de notificações em MongoDB e integração assíncrona via RabbitMQ. O backend segue Clean Architecture com domínio rico; o frontend é uma SPA React organizada por features, consumindo a API com JWT.
@@ -250,21 +258,45 @@ Erros seguem **Problem Details** (`application/problem+json`); regras de negóci
         └── shared/
 ```
 
-## Testes
+## Testes e cobertura
 
-Na raiz, com .NET SDK:
+Backend (xUnit + FluentAssertions + NSubstitute), na raiz:
 
 ```bash
 dotnet test valid-ordem-servico.sln
 ```
 
-Frontend:
+Cobertura em OpenCover (mesmo formato consumido pelo SonarCloud no CI):
+
+```bash
+dotnet test valid-ordem-servico.sln -c Release \
+  --collect:"XPlat Code Coverage" \
+  --results-directory ./TestResults \
+  -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+```
+
+Frontend (Vitest + Testing Library):
 
 ```bash
 cd frontend/valid-os-web
 npm ci
 npm run test
+npm run test:coverage
 ```
+
+## Qualidade de código
+
+- **SonarCloud** configurado via `sonar-project.properties` na raiz; o job `sonar` do pipeline em `.github/workflows/ci.yml` executa após backend e frontend, consumindo cobertura OpenCover (.NET) e LCOV (JS/TS).
+- **Conventional Commits** em pt-BR, commits atômicos por categoria (fix, refactor, chore, docs).
+- **XML docs** habilitadas em `Valid.OS.API` e `Valid.OS.Contracts`, expostas no Swagger.
+- **Healthchecks** para Postgres, Mongo, RabbitMQ e Keycloak no `docker-compose.yml`, com `depends_on: service_healthy` para a API.
+- **Containers não-root** — API e Worker rodam com `USER app`.
+
+## Limitações conhecidas
+
+- **Frontend — Vitest 4**: o `tests/setup.ts` registra `afterEach` global e, em algumas combinações de versão do Vitest 4, o runner levanta `Vitest failed to find the current suite` antes de coletar a cobertura. No CI o passo `Test + Coverage` do frontend está marcado como `continue-on-error: true` e o upload do LCOV com `if-no-files-found: ignore` para não bloquear o pipeline enquanto a suíte é estabilizada. A cobertura `.NET` segue sendo enviada ao SonarCloud em todas as execuções.
+- **Deploy GCP** é proposta arquitetural (ver seção abaixo); não há pipeline de deploy neste repositório.
+- **Email no IdP**: quando muda no Keycloak, `UserFactory.SyncKeycloakClaims` sinaliza a alteração mas não reemite o VO `Email` — ponto de extensão deliberado.
 
 ## Deploy futuro (GCP)
 
