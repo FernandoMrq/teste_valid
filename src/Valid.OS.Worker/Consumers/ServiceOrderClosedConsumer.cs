@@ -1,5 +1,6 @@
 using MassTransit;
 using Valid.OS.Contracts.IntegrationEvents;
+using Valid.OS.Contracts.Notifications;
 using Valid.OS.Domain.Entities;
 using Valid.OS.Domain.Repositories;
 
@@ -25,7 +26,7 @@ public sealed class ServiceOrderClosedConsumer(
             ServiceOrderId = message.ServiceOrderId,
             ClientId = message.ClientId,
             Message = $"Chamado {message.ServiceOrderId} finalizado.",
-            Channel = "log",
+            Channel = NotificationChannels.Log,
             ProcessedAt = DateTimeOffset.UtcNow,
         };
 
