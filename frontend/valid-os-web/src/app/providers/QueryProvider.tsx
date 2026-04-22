@@ -3,7 +3,7 @@ import { type ReactNode, useState } from 'react'
 
 import { AuthFailureBridge } from './AuthFailureBridge'
 
-export function QueryProvider({ children }: { children: ReactNode }) {
+export function QueryProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [client] = useState(
     () =>
       new QueryClient({

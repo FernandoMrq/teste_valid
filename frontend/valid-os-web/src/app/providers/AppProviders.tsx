@@ -7,7 +7,7 @@ import { AuthProvider } from './AuthProvider'
 import { QueryProvider } from './QueryProvider'
 import { ToastProvider } from './ToastProvider'
 
-export function AppProviders({ children }: { children: ReactNode }) {
+export function AppProviders({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <ErrorBoundary>
       <BrowserRouter>
