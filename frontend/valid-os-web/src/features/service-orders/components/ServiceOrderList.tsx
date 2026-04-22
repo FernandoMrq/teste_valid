@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 
 import { cn } from '../../../shared/lib'
 import { buttonVariants } from '../../../shared/ui/Button/button-variants'
-import { DataTable } from '../../../shared/ui/DataTable'
+import { DataTable, TableSkeleton } from '../../../shared/ui/DataTable'
 import { EmptyState } from '../../../shared/ui/EmptyState'
 import { Pagination } from '../../../shared/ui/Pagination'
 import { PageHeader } from '../../../shared/ui/PageHeader'
@@ -102,7 +102,7 @@ export function ServiceOrderList() {
       />
 
       {isLoading ? (
-        <p className="text-sm text-neutral-500">Carregando…</p>
+        <TableSkeleton columns={2} rows={5} />
       ) : isError ? (
         <p className="text-sm text-danger" role="alert">
           {error instanceof Error ? error.message : 'Não foi possível carregar as OS.'}
