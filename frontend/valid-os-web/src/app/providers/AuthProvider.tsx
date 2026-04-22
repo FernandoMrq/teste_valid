@@ -3,6 +3,9 @@ import { type ReactNode, useEffect, useMemo, useState } from 'react'
 import { AuthContext } from '../../features/auth/context/auth-context'
 import { initKeycloakOnce, keycloak } from '../../features/auth/lib/keycloak'
 
+import { AuthSplash } from './AuthSplash'
+import { PostLoginPrefetch } from './PostLoginPrefetch'
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [initialized, setInitialized] = useState(false)
   const [authenticated, setAuthenticated] = useState(false)
@@ -42,5 +45,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [authenticated, initialized, token]
   )
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={value}>
+      {!initialized ? (
+        <AuthSplash />
+      ) : (
+        <>
+          <PostLoginPrefetch />
+          {children}
+        </>
+      )}
+    </AuthContext.Provider>
+  )
 }
