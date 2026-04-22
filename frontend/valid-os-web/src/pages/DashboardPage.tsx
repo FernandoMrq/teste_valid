@@ -8,12 +8,14 @@ import { Skeleton } from '../shared/ui/Skeleton'
 
 const openStatuses = ['Open', 'InProgress', 'AwaitingCustomer', 'Resolved'] as const
 
-function MetricTile(props: {
-  label: string
-  value: string | number
-  loading: boolean
-  hint?: string
-}) {
+function MetricTile(
+  props: Readonly<{
+    label: string
+    value: string | number
+    loading: boolean
+    hint?: string
+  }>
+) {
   return (
     <div className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm">
       <p className="text-sm font-medium text-neutral-500">{props.label}</p>
