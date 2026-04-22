@@ -5,6 +5,13 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   plugins: [react()],
   test: {
+    // Valores padrão para o runner de testes (CI não tem `.env` local; alinhar a `.env.example`)
+    env: {
+      VITE_API_URL: 'http://localhost:5000',
+      VITE_KEYCLOAK_URL: 'http://localhost:8080',
+      VITE_KEYCLOAK_REALM: 'valid-os',
+      VITE_KEYCLOAK_CLIENT: 'valid-os-web',
+    },
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}'],
