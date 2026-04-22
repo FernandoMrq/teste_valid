@@ -9,9 +9,6 @@ export type ClientDto = {
   createdAt: string
 }
 
-/** Alias for respostas de detalhe (mesmo shape que `ClientDto`). */
-export type ClientDetailsDto = ClientDto
-
 export type PagedResult<T> = {
   items: T[]
   total: number

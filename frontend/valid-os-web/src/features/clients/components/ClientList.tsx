@@ -18,6 +18,10 @@ import { ClientListItem } from './ClientListItem'
 
 const PAGE_SIZE = 20
 
+function renderClientNameCell(row: ClientDto) {
+  return <ClientListItem client={row} />
+}
+
 export function ClientList() {
   const [page, setPage] = useState(1)
   const [searchDraft, setSearchDraft] = useState('')
@@ -54,11 +58,56 @@ export function ClientList() {
       {
         header: 'Cliente',
         accessor: 'name' as const,
-        cell: (row: ClientDto) => <ClientListItem client={row} />,
+        cell: renderClientNameCell,
       },
     ],
     []
   )
+
+  const listSection = (() => {
+    if (isLoading) {
+      return <TableSkeleton columns={1} rows={5} />
+    }
+    if (isError) {
+      return (
+        <p className="text-sm text-danger" role="alert">
+          {(error as Error).message ?? 'Não foi possível carregar os clientes.'}
+        </p>
+      )
+    }
+    return (
+      <>
+        <DataTable<ClientDto>
+          columns={columns}
+          rows={data?.items ?? []}
+          getRowId={(row) => row.id}
+          emptyContent={
+            search === '' ? (
+              <EmptyState
+                className="m-2 border-0 bg-transparent"
+                title="Nenhum cliente cadastrado"
+                description="Adicione clientes para vinculá-los às ordens de serviço."
+                action={newClientLink}
+              />
+            ) : (
+              <EmptyState
+                className="m-2 border-0 bg-transparent"
+                title="Nenhum resultado"
+                description="Nenhum cliente corresponde a essa busca. Tente outro termo ou cadastre um novo cliente."
+                action={newClientLink}
+              />
+            )
+          }
+        />
+        <Pagination
+          page={page}
+          pageSize={PAGE_SIZE}
+          total={data?.total ?? 0}
+          onChange={setPage}
+        />
+      </>
+    )
+  })()
 
   return (
     <div className="space-y-6">
@@ -80,44 +129,7 @@ export function ClientList() {
         </div>
       </div>
 
-      {isLoading ? (
-        <TableSkeleton columns={1} rows={5} />
-      ) : isError ? (
-        <p className="text-sm text-danger" role="alert">
-          {(error as Error).message ?? 'Não foi possível carregar os clientes.'}
-        </p>
-      ) : (
-        <>
-          <DataTable<ClientDto>
-            columns={columns}
-            rows={data?.items ?? []}
-            getRowId={(row) => row.id}
-            emptyContent={
-              search !== '' ? (
-                <EmptyState
-                  className="m-2 border-0 bg-transparent"
-                  title="Nenhum resultado"
-                  description="Nenhum cliente corresponde a essa busca. Tente outro termo ou cadastre um novo cliente."
-                  action={newClientLink}
-                />
-              ) : (
-                <EmptyState
-                  className="m-2 border-0 bg-transparent"
-                  title="Nenhum cliente cadastrado"
-                  description="Adicione clientes para vinculá-los às ordens de serviço."
-                  action={newClientLink}
-                />
-              )
-            }
-          />
-          <Pagination
-            page={page}
-            pageSize={PAGE_SIZE}
-            total={data?.total ?? 0}
-            onChange={setPage}
-          />
-        </>
-      )}
+      {listSection}
     </div>
   )
 }

@@ -12,9 +12,4 @@ export { ClientForm } from './components/ClientForm'
 export { ClientList } from './components/ClientList'
 export { ClientListItem } from './components/ClientListItem'
 export { clientFormSchema, type ClientFormValues } from './schemas/clientSchema'
-export type {
-  ClientDetailsDto,
-  ClientDto,
-  DocumentType,
-  PagedResult,
-} from './types'
+export type { ClientDto, DocumentType, PagedResult } from './types'

@@ -29,7 +29,7 @@ type Props =
   | { variant: 'create' }
   | { variant: 'detail'; clientId: string }
 
-export function ClientForm(props: Props) {
+export function ClientForm(props: Readonly<Props>) {
   const navigate = useNavigate()
   const createMutation = useCreateClientMutation()
 
@@ -87,18 +87,18 @@ export function ClientForm(props: Props) {
   const isDetail = props.variant === 'detail'
   const loadingDetail = isDetail && detailQuery.isLoading
 
-  return (
-    <div className="space-y-6">
-      <PageHeader title={isDetail ? 'Cliente' : 'Novo cliente'} />
-
-      <Card className="p-6">
-        {loadingDetail ? (
-          <p className="text-sm text-neutral-500">Carregando…</p>
-        ) : isDetail && detailQuery.isError ? (
-          <p className="text-sm text-danger" role="alert">
-            Não foi possível carregar o cliente.
-          </p>
-        ) : (
+  const cardInner = (() => {
+    if (loadingDetail) {
+      return <p className="text-sm text-neutral-500">Carregando…</p>
+    }
+    if (isDetail && detailQuery.isError) {
+      return (
+        <p className="text-sm text-danger" role="alert">
+          Não foi possível carregar o cliente.
+        </p>
+      )
+    }
+    return (
           <form id="client-form" className="space-y-4" onSubmit={onSubmit}>
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-neutral-700" htmlFor="name">
@@ -149,7 +149,17 @@ export function ClientForm(props: Props) {
               </p>
             ) : null}
 
-            {!isDetail ? (
+            {isDetail ? (
+              <div className="flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => navigate('/clients')}
+                >
+                  Voltar
+                </Button>
+              </div>
+            ) : (
               <div className="flex justify-end gap-2">
                 <Button
                   type="button"
@@ -162,19 +172,17 @@ export function ClientForm(props: Props) {
                   Salvar
                 </Button>
               </div>
-            ) : (
-              <div className="flex justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => navigate('/clients')}
-                >
-                  Voltar
-                </Button>
-              </div>
             )}
           </form>
-        )}
+    )
+  })()
+
+  return (
+    <div className="space-y-6">
+      <PageHeader title={isDetail ? 'Cliente' : 'Novo cliente'} />
+
+      <Card className="p-6">
+        {cardInner}
       </Card>
     </div>
   )

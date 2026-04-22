@@ -2,9 +2,9 @@ import { formatDate, formatDocument } from '../../../shared/lib'
 
 import type { ClientDto } from '../types'
 
-type Props = {
+type Props = Readonly<{
   client: ClientDto
-}
+}>
 
 /** Linha da tabela: destaca nome/e-mail e formata documento e data de cadastro. */
 export function ClientListItem({ client }: Props) {
