@@ -3,3 +3,7 @@ dist/
 .git/
 *.md
 .eslintcache
+# .env local não pode entrar na imagem: Vite o prioriza sobre os ARGs do docker-compose.
+.env
+.env.local
+.env.*.local

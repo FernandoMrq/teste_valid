@@ -28,6 +28,12 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 40s
 
   keycloak:
     image: quay.io/keycloak/keycloak:24.0
@@ -58,13 +64,15 @@ services:
       Keycloak__ValidIssuer: "http://localhost:8080/realms/valid-os"
     ports:
       - "5000:8080"
+    volumes:
+      - api_dataprotection_keys:/app/dataprotection-keys
     depends_on:
       postgres:
         condition: service_healthy
       mongo:
         condition: service_started
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
       keycloak:
         condition: service_started
 
@@ -81,7 +89,7 @@ services:
       RabbitMq__Password: "guest"
     depends_on:
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
       mongo:
         condition: service_started
 
@@ -105,3 +113,4 @@ services:
 volumes:
   pgdata:
   mongodata:
+  api_dataprotection_keys:
