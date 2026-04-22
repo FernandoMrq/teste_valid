@@ -6,7 +6,7 @@ import { initKeycloakOnce, keycloak } from '../../features/auth/lib/keycloak'
 import { AuthSplash } from './AuthSplash'
 import { PostLoginPrefetch } from './PostLoginPrefetch'
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [initialized, setInitialized] = useState(false)
   const [authenticated, setAuthenticated] = useState(false)
 
@@ -20,7 +20,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
     }
 
-    void initKeycloakOnce()
+    initKeycloakOnce()
       .then((auth) => {
         setAuthenticated(auth)
       })
@@ -36,7 +36,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       authenticated,
       user: keycloak.tokenParsed ?? undefined,
       logout: () => {
-        void keycloak.logout()
+        keycloak.logout().catch(() => {
+          /* falha de logout ignorada: sessão pode já estar inválida */
+        })
       },
     }),
     [authenticated, initialized]
@@ -44,13 +46,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider value={value}>
-      {!initialized ? (
-        <AuthSplash />
-      ) : (
+      {initialized ? (
         <>
           <PostLoginPrefetch />
           {children}
         </>
+      ) : (
+        <AuthSplash />
       )}
     </AuthContext.Provider>
   )

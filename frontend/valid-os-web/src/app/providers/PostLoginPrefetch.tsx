@@ -23,33 +23,39 @@ export function PostLoginPrefetch() {
     }
     didRun.current = true
 
-    void queryClient.prefetchQuery({
-      queryKey: queryKeys.serviceOrders.summary(),
-      queryFn: getServiceOrdersSummary,
-    })
-    void queryClient.prefetchQuery({
-      queryKey: queryKeys.clients.list({
-        page: 1,
-        pageSize: 20,
-        search: undefined,
-      }),
-      queryFn: () =>
-        listClients({ page: 1, pageSize: 20, search: undefined }),
-    })
-    void queryClient.prefetchQuery({
-      queryKey: queryKeys.serviceOrders.list({
-        page: 1,
-        pageSize: 20,
-        status: undefined,
-        priority: undefined,
-        clientId: undefined,
-      }),
-      queryFn: () =>
-        listServiceOrders({
+    queryClient
+      .prefetchQuery({
+        queryKey: queryKeys.serviceOrders.summary(),
+        queryFn: getServiceOrdersSummary,
+      })
+      .catch(() => undefined)
+    queryClient
+      .prefetchQuery({
+        queryKey: queryKeys.clients.list({
           page: 1,
           pageSize: 20,
+          search: undefined,
         }),
-    })
+        queryFn: () =>
+          listClients({ page: 1, pageSize: 20, search: undefined }),
+      })
+      .catch(() => undefined)
+    queryClient
+      .prefetchQuery({
+        queryKey: queryKeys.serviceOrders.list({
+          page: 1,
+          pageSize: 20,
+          status: undefined,
+          priority: undefined,
+          clientId: undefined,
+        }),
+        queryFn: () =>
+          listServiceOrders({
+            page: 1,
+            pageSize: 20,
+          }),
+      })
+      .catch(() => undefined)
   }, [authenticated, initialized, queryClient])
 
   return null
