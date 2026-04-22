@@ -11,5 +11,6 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS final
 WORKDIR /app
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://+:8080
-COPY --from=build /app/publish .
+COPY --from=build --chown=app:app /app/publish .
+USER app
 ENTRYPOINT ["dotnet", "Valid.OS.API.dll"]
