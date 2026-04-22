@@ -1,11 +1,13 @@
-import { useParams } from 'react-router-dom'
+import { useMatch, useParams } from 'react-router-dom'
 
 import { ClientForm } from '../features/clients'
 
 export default function ClientFormPage() {
   const { id } = useParams<{ id: string }>()
+  /** Rota literal `clients/new` não popula `:id`; criar cliente só por match explícito. */
+  const isCreateRoute = useMatch('/clients/new')
 
-  if (id === 'new') {
+  if (isCreateRoute) {
     return <ClientForm variant="create" />
   }
 

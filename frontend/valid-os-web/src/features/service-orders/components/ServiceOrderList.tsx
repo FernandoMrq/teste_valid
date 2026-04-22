@@ -1,9 +1,11 @@
+import { Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { cn } from '../../../shared/lib'
 import { buttonVariants } from '../../../shared/ui/Button/button-variants'
 import { DataTable } from '../../../shared/ui/DataTable'
+import { EmptyState } from '../../../shared/ui/EmptyState'
 import { Pagination } from '../../../shared/ui/Pagination'
 import { PageHeader } from '../../../shared/ui/PageHeader'
 
@@ -17,6 +19,10 @@ import {
 import { ServiceOrderListItem } from './ServiceOrderListItem'
 
 const PAGE_SIZE = 20
+
+function hasActiveFilters(f: ServiceOrderFilterValues) {
+  return f.status != null || f.priority != null || f.clientId != null
+}
 
 export function ServiceOrderList() {
   const [page, setPage] = useState(1)
@@ -70,9 +76,22 @@ export function ServiceOrderList() {
     []
   )
 
+  const newOsLink = (
+    <Link
+      to="/service-orders/new"
+      className={cn(buttonVariants({ variant: 'primary', size: 'md' }))}
+    >
+      <Plus className="h-4 w-4" aria-hidden />
+      Nova OS
+    </Link>
+  )
+
   return (
     <div className="space-y-6">
-      <PageHeader title="Ordens de serviço" />
+      <PageHeader
+        title="Ordens de serviço"
+        actions={newOsLink}
+      />
 
       <ServiceOrderFilters
         value={filters}
@@ -95,9 +114,21 @@ export function ServiceOrderList() {
             rows={data?.items ?? []}
             getRowId={(row) => row.id}
             emptyContent={
-              <p className="p-6 text-center text-sm text-neutral-500">
-                Nenhuma ordem de serviço encontrada.
-              </p>
+              hasActiveFilters(filters) ? (
+                <EmptyState
+                  className="m-2 border-0 bg-transparent"
+                  title="Nenhuma ordem encontrada"
+                  description="Ajuste os filtros ou cadastre uma nova ordem de serviço."
+                  action={newOsLink}
+                />
+              ) : (
+                <EmptyState
+                  className="m-2 border-0 bg-transparent"
+                  title="Nenhuma ordem de serviço ainda"
+                  description="Crie a primeira ordem para acompanhar atendimentos e status."
+                  action={newOsLink}
+                />
+              )
             }
           />
           <Pagination

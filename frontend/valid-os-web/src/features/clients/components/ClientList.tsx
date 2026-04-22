@@ -1,7 +1,11 @@
-import { Search } from 'lucide-react'
+import { Plus, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 
+import { cn } from '../../../shared/lib'
+import { buttonVariants } from '../../../shared/ui/Button/button-variants'
 import { DataTable } from '../../../shared/ui/DataTable'
+import { EmptyState } from '../../../shared/ui/EmptyState'
 import { Input } from '../../../shared/ui/Input'
 import { Pagination } from '../../../shared/ui/Pagination'
 import { PageHeader } from '../../../shared/ui/PageHeader'
@@ -29,6 +33,16 @@ export function ClientList() {
 
   const { data, isLoading, isError, error } = useClientsQuery(queryParams)
 
+  const newClientLink = (
+    <Link
+      to="/clients/new"
+      className={cn(buttonVariants({ variant: 'primary', size: 'md' }))}
+    >
+      <Plus className="h-4 w-4" aria-hidden />
+      Novo cliente
+    </Link>
+  )
+
   const columns = useMemo(
     () => [
       {
@@ -42,7 +56,7 @@ export function ClientList() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Clientes" />
+      <PageHeader title="Clientes" actions={newClientLink} />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <form
@@ -80,9 +94,21 @@ export function ClientList() {
             rows={data?.items ?? []}
             getRowId={(row) => row.id}
             emptyContent={
-              <p className="p-6 text-center text-sm text-neutral-500">
-                Nenhum cliente encontrado.
-              </p>
+              search.trim() !== '' ? (
+                <EmptyState
+                  className="m-2 border-0 bg-transparent"
+                  title="Nenhum resultado"
+                  description="Nenhum cliente corresponde a essa busca. Tente outro termo ou cadastre um novo cliente."
+                  action={newClientLink}
+                />
+              ) : (
+                <EmptyState
+                  className="m-2 border-0 bg-transparent"
+                  title="Nenhum cliente cadastrado"
+                  description="Adicione clientes para vinculá-los às ordens de serviço."
+                  action={newClientLink}
+                />
+              )
             }
           />
           <Pagination

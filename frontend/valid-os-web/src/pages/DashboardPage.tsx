@@ -1,8 +1,11 @@
 import { subDays } from 'date-fns'
+import { Plus } from 'lucide-react'
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
 import { useServiceOrdersQuery } from '../features/service-orders'
+import { cn } from '../shared/lib'
+import { buttonVariants } from '../shared/ui/Button/button-variants'
 
 function MetricTile(props: {
   label: string
@@ -126,22 +129,43 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div className="flex flex-wrap gap-3 text-sm">
-        <Link
-          to="/service-orders"
-          className="font-medium text-brand-600 underline-offset-2 hover:underline"
-        >
-          Ver ordens de serviço
-        </Link>
-        <span className="text-neutral-300" aria-hidden>
-          |
-        </span>
-        <Link
-          to="/clients"
-          className="font-medium text-brand-600 underline-offset-2 hover:underline"
-        >
-          Ver clientes
-        </Link>
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-sm font-medium text-neutral-700">Ações rápidas</h2>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Link
+              to="/service-orders/new"
+              className={cn(buttonVariants({ variant: 'primary', size: 'md' }))}
+            >
+              <Plus className="h-4 w-4" aria-hidden />
+              Nova ordem de serviço
+            </Link>
+            <Link
+              to="/clients/new"
+              className={cn(buttonVariants({ variant: 'secondary', size: 'md' }))}
+            >
+              <Plus className="h-4 w-4" aria-hidden />
+              Novo cliente
+            </Link>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-3 text-sm">
+          <Link
+            to="/service-orders"
+            className="font-medium text-brand-600 underline-offset-2 hover:underline"
+          >
+            Ver ordens de serviço
+          </Link>
+          <span className="text-neutral-300" aria-hidden>
+            |
+          </span>
+          <Link
+            to="/clients"
+            className="font-medium text-brand-600 underline-offset-2 hover:underline"
+          >
+            Ver clientes
+          </Link>
+        </div>
       </div>
     </div>
   )

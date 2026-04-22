@@ -89,16 +89,7 @@ export function ClientForm(props: Props) {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={isDetail ? 'Cliente' : 'Novo cliente'}
-        actions={
-          !isDetail ? (
-            <Button type="submit" form="client-form" loading={createMutation.isPending}>
-              Salvar
-            </Button>
-          ) : null
-        }
-      />
+      <PageHeader title={isDetail ? 'Cliente' : 'Novo cliente'} />
 
       <Card className="p-6">
         {loadingDetail ? (
@@ -109,34 +100,34 @@ export function ClientForm(props: Props) {
           </p>
         ) : (
           <form id="client-form" className="space-y-4" onSubmit={onSubmit}>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-neutral-700" htmlFor="name">
-                  Nome
-                </label>
-                <Input
-                  id="name"
-                  autoComplete="organization"
-                  disabled={isDetail}
-                  error={errors.name?.message}
-                  {...register('name')}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-neutral-700" htmlFor="email">
-                  E-mail
-                </label>
-                <Input
-                  id="email"
-                  type="email"
-                  autoComplete="email"
-                  disabled={isDetail}
-                  error={errors.email?.message}
-                  {...register('email')}
-                />
-              </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-neutral-700" htmlFor="name">
+                Nome
+              </label>
+              <Input
+                id="name"
+                autoComplete="organization"
+                disabled={isDetail}
+                error={errors.name?.message}
+                {...register('name')}
+              />
             </div>
-            <div className="space-y-1.5 sm:max-w-md">
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-neutral-700" htmlFor="email">
+                E-mail
+              </label>
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                disabled={isDetail}
+                error={errors.email?.message}
+                {...register('email')}
+              />
+            </div>
+
+            <div className="space-y-1.5">
               <label
                 className="text-sm font-medium text-neutral-700"
                 htmlFor="documentValue"
@@ -151,11 +142,37 @@ export function ClientForm(props: Props) {
                 {...register('documentValue')}
               />
             </div>
+
             {isDetail && detailQuery.data ? (
               <p className="text-xs text-neutral-500">
                 Cadastrado em {formatDate(detailQuery.data.createdAt)}
               </p>
             ) : null}
+
+            {!isDetail ? (
+              <div className="flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => navigate('/clients')}
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit" loading={createMutation.isPending}>
+                  Salvar
+                </Button>
+              </div>
+            ) : (
+              <div className="flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => navigate('/clients')}
+                >
+                  Voltar
+                </Button>
+              </div>
+            )}
           </form>
         )}
       </Card>
