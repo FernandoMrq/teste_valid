@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- SonarScanner for .NET não aceita sonar-project.properties na raiz; use este arquivo + /s: no "begin". -->
 <SonarQubeAnalysisProperties xmlns="http://www.sonarsource.com/msbuild/integration/2015/1">
-  <Property Name="sonar.sources">src,frontend/valid-os-web/src</Property>
-  <Property Name="sonar.tests">tests,frontend/valid-os-web/src</Property>
-  <Property Name="sonar.test.inclusions">**/*.test.ts,**/*.test.tsx,**/*Tests/**/*.cs</Property>
+  <!-- Projetos .NET são auto-descobertos via MSBuild; aqui só declaramos o frontend. -->
+  <Property Name="sonar.sources">frontend/valid-os-web/src</Property>
+  <Property Name="sonar.tests">frontend/valid-os-web/src</Property>
+  <Property Name="sonar.test.inclusions">**/*.test.ts,**/*.test.tsx</Property>
   <Property Name="sonar.exclusions">**/bin/**,**/obj/**,**/dist/**,**/node_modules/**,frontend/valid-os-web/public/**,**/Migrations/**,**/logs/**,**/appsettings*.json,**/Dockerfile</Property>
   <Property Name="sonar.coverage.exclusions">**/Program.cs,**/Program.Partial.cs,**/DependencyInjection.cs,**/*DbContextFactory.cs,**/Valid.OS.Contracts/**,**/DTOs/**,src/Valid.OS.API/Models/**,src/Valid.OS.Infrastructure/Persistence/Configurations/**,src/Valid.OS.Infrastructure/Mongo/MongoContext.cs,src/Valid.OS.Infrastructure/Mongo/NotificationDocument.cs,src/Valid.OS.Infrastructure/Options/**,src/Valid.OS.Domain/Events/**,src/Valid.OS.Domain/Enums/**,frontend/valid-os-web/src/main.tsx,frontend/valid-os-web/src/vite-env.d.ts,frontend/valid-os-web/src/**/*.d.ts,frontend/valid-os-web/src/app/**,frontend/valid-os-web/src/pages/**,frontend/valid-os-web/src/App.tsx,frontend/valid-os-web/src/env.ts,frontend/valid-os-web/src/features/auth/lib/keycloak.ts,frontend/valid-os-web/src/shared/ui/Badge/**,frontend/valid-os-web/src/shared/ui/Card/**,frontend/valid-os-web/src/shared/ui/Dialog/**,frontend/valid-os-web/src/shared/ui/Dropdown/**,frontend/valid-os-web/src/shared/ui/Input/**,frontend/valid-os-web/src/shared/ui/TextArea/**,frontend/valid-os-web/src/shared/ui/Tooltip/**,frontend/valid-os-web/src/shared/ui/Skeleton/**,frontend/valid-os-web/src/shared/ui/EmptyState/**,frontend/valid-os-web/src/shared/ui/Select/**,frontend/valid-os-web/src/**/index.ts,frontend/valid-os-web/src/**/types.ts,frontend/valid-os-web/src/**/*-variants.ts</Property>
   <Property Name="sonar.cs.opencover.reportsPaths">**/TestResults/**/coverage.opencover.xml</Property>
