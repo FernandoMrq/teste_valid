@@ -123,6 +123,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateLifetime = true,
             NameClaimType = "preferred_username",
         };
+        if (!string.IsNullOrWhiteSpace(keycloak.ValidIssuer))
+        {
+            options.TokenValidationParameters.ValidIssuers = [keycloak.ValidIssuer];
+        }
         options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
     });
 

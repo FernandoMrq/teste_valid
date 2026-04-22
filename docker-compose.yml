@@ -40,6 +40,68 @@ services:
     volumes:
       - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
 
+  api:
+    build:
+      context: .
+      dockerfile: src/Valid.OS.API/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=valid_os;Username=valid;Password=valid"
+      Mongo__ConnectionString: "mongodb://mongo:27017"
+      Mongo__DatabaseName: "valid_os"
+      RabbitMq__Host: "rabbitmq"
+      RabbitMq__VHost: "/"
+      RabbitMq__User: "guest"
+      RabbitMq__Password: "guest"
+      Keycloak__Authority: "http://keycloak:8080/realms/valid-os"
+      Keycloak__Audience: "valid-os-api"
+      Keycloak__ValidIssuer: "http://localhost:8080/realms/valid-os"
+    ports:
+      - "5000:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      keycloak:
+        condition: service_started
+
+  worker:
+    build:
+      context: .
+      dockerfile: src/Valid.OS.Worker/Dockerfile
+    environment:
+      Mongo__ConnectionString: "mongodb://mongo:27017"
+      Mongo__DatabaseName: "valid_os"
+      RabbitMq__Host: "rabbitmq"
+      RabbitMq__VHost: "/"
+      RabbitMq__User: "guest"
+      RabbitMq__Password: "guest"
+    depends_on:
+      rabbitmq:
+        condition: service_started
+      mongo:
+        condition: service_started
+
+  web:
+    build:
+      context: ./frontend/valid-os-web
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: "http://localhost:5000"
+        VITE_KEYCLOAK_URL: "http://localhost:8080"
+        VITE_KEYCLOAK_REALM: "valid-os"
+        VITE_KEYCLOAK_CLIENT: "valid-os-web"
+    ports:
+      - "5173:5173"
+    depends_on:
+      api:
+        condition: service_started
+      keycloak:
+        condition: service_started
+
 volumes:
   pgdata:
   mongodata:
