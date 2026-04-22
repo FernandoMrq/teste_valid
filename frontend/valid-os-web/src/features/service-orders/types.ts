@@ -31,3 +31,9 @@ export type PagedResult<T> = {
   page: number
   pageSize: number
 }
+
+export type ServiceOrderSummaryDto = {
+  openTotal: number
+  criticalOpenCount: number
+  closedLast7Days: number
+}

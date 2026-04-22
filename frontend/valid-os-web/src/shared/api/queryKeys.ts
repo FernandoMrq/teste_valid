@@ -10,6 +10,7 @@ export const queryKeys = {
   },
   serviceOrders: {
     all: ['serviceOrders'] as const,
+    summary: () => [...queryKeys.serviceOrders.all, 'summary'] as const,
     list: (params: {
       page: number
       pageSize: number

@@ -6,6 +6,7 @@ import type {
   ServiceOrderDetailsDto,
   ServiceOrderDto,
   ServiceOrderStatus,
+  ServiceOrderSummaryDto,
 } from '../types'
 
 export type ListServiceOrdersParams = {
@@ -30,6 +31,13 @@ export async function listServiceOrders(
         clientId: params.clientId,
       },
     }
+  )
+  return data
+}
+
+export async function getServiceOrdersSummary(): Promise<ServiceOrderSummaryDto> {
+  const { data } = await axiosClient.get<ServiceOrderSummaryDto>(
+    '/api/service-orders/summary'
   )
   return data
 }

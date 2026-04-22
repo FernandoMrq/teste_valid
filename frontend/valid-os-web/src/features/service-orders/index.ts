@@ -10,6 +10,7 @@ export { StatusBadge } from './components/StatusBadge'
 export {
   createServiceOrder,
   getServiceOrderById,
+  getServiceOrdersSummary,
   listServiceOrders,
   updateServiceOrder,
   updateServiceOrderStatus,
@@ -21,6 +22,7 @@ export { serviceOrdersQueryOptions } from './api/serviceOrdersQueryOptions'
 export { useCreateServiceOrderMutation } from './api/useCreateServiceOrderMutation'
 export { useServiceOrderQuery } from './api/useServiceOrderQuery'
 export { useServiceOrdersQuery } from './api/useServiceOrdersQuery'
+export { useServiceOrdersSummaryQuery } from './api/useServiceOrdersSummaryQuery'
 export { useUpdateServiceOrderMutation } from './api/useUpdateServiceOrderMutation'
 export { useUpdateStatusMutation } from './api/useUpdateStatusMutation'
 export {
@@ -37,4 +39,5 @@ export type {
   ServiceOrderDetailsDto,
   ServiceOrderDto,
   ServiceOrderStatus,
+  ServiceOrderSummaryDto,
 } from './types'
