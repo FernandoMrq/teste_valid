@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- SonarScanner for .NET não aceita sonar-project.properties na raiz; use este arquivo + /s: no "begin". -->
 <SonarQubeAnalysisProperties xmlns="http://www.sonarsource.com/msbuild/integration/2015/1">
-  <Property Name="sonar.projectBaseDir">.</Property>
   <Property Name="sonar.sources">src,frontend/valid-os-web/src</Property>
   <Property Name="sonar.tests">tests,frontend/valid-os-web/src</Property>
   <Property Name="sonar.test.inclusions">**/*.test.ts,**/*.test.tsx,**/*Tests/**/*.cs</Property>
