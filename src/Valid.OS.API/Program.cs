@@ -2,10 +2,8 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using RabbitMQ.Client;
 using Serilog;
 using Valid.OS.API.Filters;
 using Valid.OS.API.Middleware;
@@ -13,15 +11,6 @@ using Valid.OS.Application;
 using Valid.OS.Infrastructure;
 using Valid.OS.Infrastructure.Options;
 using Valid.OS.Infrastructure.Persistence;
-
-static string BuildRabbitMqConnectionString(RabbitMqOptions options)
-{
-    var user = Uri.EscapeDataString(options.User);
-    var pass = Uri.EscapeDataString(options.Password);
-    var vhost = string.IsNullOrWhiteSpace(options.VHost) ? "/" : options.VHost;
-    var vhostSegment = vhost == "/" ? "%2F" : Uri.EscapeDataString(vhost);
-    return $"amqp://{user}:{pass}@{options.Host}:5672/{vhostSegment}";
-}
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -95,13 +84,6 @@ if (string.IsNullOrWhiteSpace(rabbitForHealth.Host))
 {
     throw new InvalidOperationException("RabbitMq:Host is not configured.");
 }
-
-builder.Services.AddSingleton<IConnection>(sp =>
-{
-    var options = sp.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
-    var factory = new ConnectionFactory { Uri = new Uri(BuildRabbitMqConnectionString(options)) };
-    return factory.CreateConnectionAsync().GetAwaiter().GetResult();
-});
 
 var keycloakOpenIdConfiguration = new Uri($"{keycloak.Authority.TrimEnd('/')}/.well-known/openid-configuration");
 
