@@ -9,11 +9,11 @@ export interface SkeletonProps
   extends HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof skeletonVariants> {}
 
-export function Skeleton({ className, variant, ...props }: SkeletonProps) {
+export function Skeleton({ className, variant, ...props }: Readonly<SkeletonProps>) {
   return (
     <div
       className={cn(skeletonVariants({ variant }), className)}
-      role="presentation"
+      aria-hidden
       {...props}
     />
   )

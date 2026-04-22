@@ -14,16 +14,16 @@ export function TableSkeleton({
   columns,
   rows = 5,
   className,
-}: TableSkeletonProps) {
+}: Readonly<TableSkeletonProps>) {
   const template = { gridTemplateColumns: `repeat(${columns}, minmax(0,1fr))` }
 
   return (
-    <div
+    <output
       className={cn(
-        'overflow-hidden rounded-lg border border-neutral-200 bg-white',
+        'block overflow-hidden rounded-lg border border-neutral-200 bg-white',
         className
       )}
-      role="status"
+      aria-live="polite"
       aria-label="Carregando tabela"
     >
       <div
@@ -49,6 +49,6 @@ export function TableSkeleton({
           </li>
         ))}
       </ul>
-    </div>
+    </output>
   )
 }

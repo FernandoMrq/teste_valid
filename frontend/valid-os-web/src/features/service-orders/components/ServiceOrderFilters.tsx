@@ -24,11 +24,11 @@ export type ServiceOrderFilterValues = {
   clientId: string | undefined
 }
 
-type Props = {
+type Props = Readonly<{
   value: ServiceOrderFilterValues
   onChange: (next: ServiceOrderFilterValues) => void
   className?: string
-}
+}>
 
 export function ServiceOrderFilters({ value, onChange, className }: Props) {
   const [clientSearch, setClientSearch] = useState('')
@@ -159,11 +159,11 @@ export function ServiceOrderFilters({ value, onChange, className }: Props) {
         {showSuggestions ? (
           <ul
             id="so-client-suggestions"
-            role="listbox"
             className="absolute z-20 mt-1 max-h-48 w-full overflow-auto rounded-md border border-neutral-200 bg-white py-1 text-sm shadow-md"
+            aria-label="Sugestões de cliente"
           >
             {clientQuery.data.items.map((c) => (
-              <li key={c.id} role="option" aria-selected={c.id === value.clientId}>
+              <li key={c.id}>
                 <button
                   type="button"
                   className="flex w-full flex-col px-3 py-2 text-left hover:bg-neutral-50"

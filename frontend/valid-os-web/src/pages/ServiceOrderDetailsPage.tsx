@@ -13,7 +13,11 @@ import { Skeleton } from '../shared/ui/Skeleton'
 
 function DetailsSkeleton() {
   return (
-    <div className="space-y-6" role="status" aria-label="Carregando ordem de serviço">
+    <output
+      className="block space-y-6"
+      aria-live="polite"
+      aria-label="Carregando ordem de serviço"
+    >
       <div className="flex flex-wrap items-end justify-between gap-4">
         <Skeleton variant="text" className="h-8 w-40" />
         <Skeleton className="h-9 w-20 rounded-md" />
@@ -36,7 +40,7 @@ function DetailsSkeleton() {
           <Skeleton variant="text" className="h-12 w-full" />
         </div>
       </Card>
-    </div>
+    </output>
   )
 }
 
