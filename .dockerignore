@@ -1,0 +1,17 @@
+**/.git/
+**/.vs/
+**/.idea/
+**/.cursor/
+**/*.user
+**/[Bb]in/
+**/[Oo]bj/
+**/out/
+**/.sdd/
+**/keycloak/
+**/node_modules/
+**/frontend/
+**/tests/
+!frontend/valid-os-web/
+**/.env
+**/.env.*
+**/uploads/
