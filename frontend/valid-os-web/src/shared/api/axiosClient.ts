@@ -111,19 +111,17 @@ axiosClient.interceptors.request.use((config) => applyAuthHeader(config))
 let inFlightRecovery: Promise<boolean> | null = null
 
 async function tryRecoverSession(): Promise<boolean> {
-  if (!inFlightRecovery) {
-    inFlightRecovery = (async () => {
-      try {
-        // -1 força o refresh mesmo que keycloak-js julgue o token "válido".
-        const refreshed = await keycloak.updateToken(-1)
-        return refreshed && !!keycloak.token
-      } catch {
-        return false
-      } finally {
-        inFlightRecovery = null
-      }
-    })()
-  }
+  inFlightRecovery ??= (async () => {
+    try {
+      // -1 força o refresh mesmo que keycloak-js julgue o token "válido".
+      const refreshed = await keycloak.updateToken(-1)
+      return refreshed && !!keycloak.token
+    } catch {
+      return false
+    } finally {
+      inFlightRecovery = null
+    }
+  })()
   return inFlightRecovery
 }
 
@@ -131,11 +129,11 @@ axiosClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError | Error) => {
     if (!axios.isAxiosError(error) || !error.response) {
-      return Promise.reject(error)
+      throw error
     }
 
     const status = error.response.status
-    const originalConfig = error.config as RetryableConfig | undefined
+    const originalConfig: RetryableConfig | undefined = error.config
 
     if (status === 401 && originalConfig && !originalConfig._retry) {
       originalConfig._retry = true
@@ -147,11 +145,13 @@ axiosClient.interceptors.response.use(
       }
 
       emitAuthFailure()
-      void keycloak.login()
-      return Promise.reject(await responseToApiError(error.response))
+      keycloak.login().catch(() => {
+        /* redirect/login falhou: o utilizador permanece na página atual */
+      })
+      throw await responseToApiError(error.response)
     }
 
     const apiError = await responseToApiError(error.response)
-    return Promise.reject(apiError)
+    throw apiError
   }
 )
