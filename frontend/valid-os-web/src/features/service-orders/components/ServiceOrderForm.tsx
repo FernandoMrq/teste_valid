@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -81,6 +81,7 @@ export function ServiceOrderForm() {
   const [clientSearch, setClientSearch] = useState('')
   const [statusDialogOpen, setStatusDialogOpen] = useState(false)
   const [nextStatus, setNextStatus] = useState<ServiceOrderStatus>('Open')
+  const syncedEditOrderIdRef = useRef<string | undefined>(undefined)
 
   const clientsQuery = useClientsQuery({
     page: 1,
@@ -105,15 +106,27 @@ export function ServiceOrderForm() {
     },
   })
 
+  const { isDirty: editIsDirty, isValid: editIsValid } = editForm.formState
+
   useEffect(() => {
     const d = detailQuery.data
-    if (!d || isCreate) return
-    editForm.reset({
-      description: d.description,
-      priority: d.priority,
-    })
+    if (!d || isCreate || d.id !== id) return
+
+    if (syncedEditOrderIdRef.current !== id) {
+      syncedEditOrderIdRef.current = id
+      editForm.reset({
+        description: d.description,
+        priority: d.priority,
+      })
+    } else if (!editForm.formState.isDirty) {
+      editForm.reset({
+        description: d.description,
+        priority: d.priority,
+      })
+    }
+
     setNextStatus(d.status)
-  }, [detailQuery.data, editForm, isCreate])
+  }, [detailQuery.data, id, isCreate, editForm])
 
   const onCreateSubmit = createForm.handleSubmit(async (values) => {
     try {
@@ -355,7 +368,11 @@ export function ServiceOrderForm() {
                 >
                   Cancelar
                 </Button>
-                <Button type="submit" loading={updateMutation.isPending}>
+                <Button
+                  type="submit"
+                  loading={updateMutation.isPending}
+                  disabled={!editIsDirty || !editIsValid}
+                >
                   Salvar
                 </Button>
               </div>
